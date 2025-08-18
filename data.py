@@ -2639,63 +2639,6 @@ class FirstPersonWorkRoleTemplate(Template):
         
         return text, entities, relations
 
-    def generate(self):
-        life_stage = random.choice(["childhood", "adolescence", "young adulthood", "mid-career", "retirement"])
-        milestone = random.choice(["graduation", "first job", "marriage", "parenthood", "career change"])
-        growth_area = random.choice(["emotional maturity", "self-confidence", "life skills", "perspective", "wisdom"])
-        period = random.choice(["during college", "in my twenties", "recently", "a few years ago"])
-        memory_type = random.choice(["vivid memory", "nostalgic memory", "emotional memory", "life-changing memory"])
-        
-        text = f"Reflecting on my {life_stage} {period}, the {milestone} marked significant {growth_area}. This {memory_type} still influences me today."
-        
-        entities = {
-            "user": (EntityTypes.PERSON, "I"),
-            "stage1": (EntityTypes.LIFE_STAGE, life_stage),
-            "milestone1": (EntityTypes.EVENT, milestone),
-            "growth1": (EntityTypes.PERSONAL_GROWTH, growth_area),
-            "period1": (EntityTypes.PERIOD, period),
-            "memory1": (EntityTypes.MEMORY_TYPE, memory_type)
-        }
-        
-        relations = [
-            (RelationTypes.EXPERIENCES, "user", "stage1"),
-            (RelationTypes.EXPERIENCES, "user", "milestone1"),
-            (RelationTypes.ON_DATE, "milestone1", "period1"),
-            (RelationTypes.RESULTS_IN, "milestone1", "growth1"),
-            (RelationTypes.IS_TYPE, "milestone1", "memory1"),
-            (RelationTypes.REMEMBERS, "user", "memory1")
-        ]
-        
-        return text, entities, relations
-
-class FirstPersonCulturalLearningTemplate(Template):
-    def generate(self):
-        cultural_element = random.choice(["traditional cooking", "ancestral language", "folk dance", "cultural ceremony", "family traditions"])
-        learning_method = random.choice(["hands-on practice", "storytelling", "observation", "formal instruction", "cultural immersion"])
-        teacher = random.choice(PEOPLE_NAMES)
-        community_role = random.choice(["cultural preservationist", "tradition keeper", "community elder", "cultural educator"])
-        personal_growth = random.choice(["cultural identity", "family connection", "heritage appreciation", "community belonging"])
-        
-        text = f"I learned {cultural_element} through {learning_method} from {teacher}, who serves as a {community_role}. This developed my {personal_growth}."
-        
-        entities = {
-            "user": (EntityTypes.PERSON, "I"),
-            "culture1": (EntityTypes.CULTURAL_ELEMENT, cultural_element),
-            "method1": (EntityTypes.LEARNING_METHOD, learning_method),
-            "teacher1": (EntityTypes.PERSON, teacher),
-            "role1": (EntityTypes.COMMUNITY_ROLE, community_role),
-            "growth1": (EntityTypes.PERSONAL_GROWTH, personal_growth)
-        }
-        
-        relations = [
-            (RelationTypes.LEARNS, "user", "culture1"),
-            (RelationTypes.USES, "user", "method1"),
-            (RelationTypes.COLLABORATES_WITH, "user", "teacher1"),
-            (RelationTypes.HAS_ROLE, "teacher1", "role1"),
-            (RelationTypes.RESULTS_IN, "culture1", "growth1")
-        ]
-        
-        return text, entities, relations
 
 class FirstPersonIndustryExpertiseTemplate(Template):
     def generate(self):
@@ -3904,6 +3847,139 @@ class ThirdPersonBeliefInfluenceTemplate(Template):
         return text, entities, relations
 
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+# MISSING RELATION COVERAGE TEMPLATES
+# --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+class FirstPersonAchievementTemplate(Template):
+    def generate(self):
+        # Covers: ACHIEVED
+        goal = random.choice(["certification", "promotion", "degree", "fitness milestone"])
+        achievement = random.choice(["completion", "success", "recognition", "mastery"])
+        
+        text = f"I achieved {achievement} in my {goal} after months of hard work."
+        
+        entities = {
+            "user": (EntityTypes.PERSON, "I"),
+            "goal1": (EntityTypes.GOAL, goal),
+            "achieve1": (EntityTypes.CONCEPT, achievement)
+        }
+        
+        relations = [
+            (RelationTypes.ACHIEVED, "user", "achieve1"),
+            (RelationTypes.HAS_GOAL, "user", "goal1"),
+            (RelationTypes.RESULTS_IN, "goal1", "achieve1")
+        ]
+        
+        return text, entities, relations
+
+class FirstPersonMediaPreferencesTemplate(Template):
+    def generate(self):
+        # Covers: ENJOYS, LIKES, PREFERS, READS, LISTENS_TO
+        book = random.choice(["science fiction novel", "historical biography", "self-help book"])
+        music = random.choice(["classical music", "jazz", "rock", "ambient sounds"])
+        hobby = random.choice(["gardening", "photography", "cooking", "hiking"])
+        preference = random.choice(["quiet mornings", "evening routines", "weekend activities"])
+        
+        text = f"I enjoy {hobby}, like reading {book}, and prefer {preference}. I also listen to {music} while relaxing."
+        
+        entities = {
+            "user": (EntityTypes.PERSON, "I"),
+            "hobby1": (EntityTypes.HOBBY, hobby),
+            "book1": (EntityTypes.MEDIA, book),
+            "music1": (EntityTypes.MEDIA, music),
+            "pref1": (EntityTypes.PREFERENCE, preference)
+        }
+        
+        relations = [
+            (RelationTypes.ENJOYS, "user", "hobby1"),
+            (RelationTypes.READS, "user", "book1"),
+            (RelationTypes.LIKES, "user", "book1"),
+            (RelationTypes.LISTENS_TO, "user", "music1"),
+            (RelationTypes.PREFERS, "user", "pref1")
+        ]
+        
+        return text, entities, relations
+
+class FirstPersonLifeEventsTemplate(Template):
+    def generate(self):
+        # Covers: HAPPENS_ON, SCHEDULED_FOR, LIVES_IN
+        event = random.choice(["wedding", "graduation", "conference", "family reunion"])
+        date = random.choice(DATES)
+        city = random.choice(["San Francisco", "New York", "Chicago", "Austin"])
+        relationship = random.choice(["partnership", "friendship", "family bond", "mentorship"])
+        
+        text = f"The {event} is scheduled for {date}. I live in {city} and maintain a strong {relationship}."
+        
+        entities = {
+            "user": (EntityTypes.PERSON, "I"),
+            "event1": (EntityTypes.EVENT, event),
+            "date1": (EntityTypes.DATE, date),
+            "city1": (EntityTypes.LOCATION, city),
+            "rel1": (EntityTypes.RELATIONSHIP, relationship)
+        }
+        
+        relations = [
+            (RelationTypes.SCHEDULED_FOR, "event1", "date1"),
+            (RelationTypes.HAPPENS_ON, "event1", "date1"),
+            (RelationTypes.LIVES_IN, "user", "city1"),
+            (RelationTypes.HAS_OBJECT, "user", "rel1")
+        ]
+        
+        return text, entities, relations
+
+class ThirdPersonLearningMentorshipTemplate(Template):
+    def generate(self):
+        # Covers: MENTORED_BY, MASTERED, INSPIRED_BY
+        student = random.choice(PEOPLE_NAMES)
+        mentor = random.choice(PEOPLE_NAMES)
+        skill = random.choice(SKILLS)
+        inspiration_source = random.choice(["success story", "breakthrough", "innovation", "dedication"])
+        
+        text = f"{student} is mentored by {mentor} and has mastered {skill}. They were inspired by {mentor}'s {inspiration_source}."
+        
+        entities = {
+            "student1": (EntityTypes.PERSON, student),
+            "mentor1": (EntityTypes.PERSON, mentor),
+            "skill1": (EntityTypes.SKILL, skill),
+            "insp1": (EntityTypes.CONCEPT, inspiration_source)
+        }
+        
+        relations = [
+            (RelationTypes.MENTORED_BY, "student1", "mentor1"),
+            (RelationTypes.MASTERED, "student1", "skill1"),
+            (RelationTypes.INSPIRED_BY, "student1", "insp1"),
+            (RelationTypes.CONTRIBUTED_TO, "mentor1", "insp1")
+        ]
+        
+        return text, entities, relations
+
+class ThirdPersonEmotionalJourneyTemplate(Template):
+    def generate(self):
+        # Covers: MOURNS, OVERCAME, LEADS_INITIATIVE
+        person = random.choice(PEOPLE_NAMES)
+        loss = random.choice(["beloved pet", "family member", "friendship", "career opportunity"])
+        challenge = random.choice(["fear", "setback", "obstacle", "difficulty"])
+        initiative = random.choice(["community project", "volunteer program", "support group", "awareness campaign"])
+        
+        text = f"{person} mourns the loss of their {loss} but overcame their {challenge}. Now they lead a {initiative}."
+        
+        entities = {
+            "p1": (EntityTypes.PERSON, person),
+            "loss1": (EntityTypes.CONCEPT, loss),
+            "challenge1": (EntityTypes.CONCEPT, challenge),
+            "init1": (EntityTypes.PROJECT, initiative)
+        }
+        
+        relations = [
+            (RelationTypes.MOURNS, "p1", "loss1"),
+            (RelationTypes.OVERCAME, "p1", "challenge1"),
+            (RelationTypes.LEADS_INITIATIVE, "p1", "init1"),
+            (RelationTypes.RESULTS_IN, "challenge1", "init1")
+        ]
+        
+        return text, entities, relations
+
+# --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 # MAIN GENERATION FUNCTION
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -3973,7 +4049,10 @@ def generate_dataset(num_records: int = None) -> Dict:
         FirstPersonFinancialGoalsTemplate,
         FirstPersonNicknameIdentityTemplate,
         FirstPersonIdeaInnovationTemplate,
-        FirstPersonComprehensiveCoverageTemplate
+        FirstPersonComprehensiveCoverageTemplate,
+        FirstPersonAchievementTemplate,
+        FirstPersonMediaPreferencesTemplate,
+        FirstPersonLifeEventsTemplate
     ]
     
     third_person_templates = [
@@ -4013,7 +4092,9 @@ def generate_dataset(num_records: int = None) -> Dict:
         ThirdPersonPetCareTemplate,
         ThirdPersonAdvancedCognitiveTemplate,
         ThirdPersonTemporalExpertiseTemplate,
-        ThirdPersonRelationshipMaintainerTemplate
+        ThirdPersonRelationshipMaintainerTemplate,
+        ThirdPersonLearningMentorshipTemplate,
+        ThirdPersonEmotionalJourneyTemplate
     ]
     
     # Calculate target counts
