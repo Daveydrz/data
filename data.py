@@ -331,12 +331,6 @@ COMMUNITY_ROLES = ["volunteer coordinator", "neighborhood watch leader", "school
 
 PERIODS = ["during childhood", "in my teens", "college years", "early career", "when I was married", "after the divorce", "during pregnancy", "when kids were young", "midlife crisis", "empty nest years", "pre-retirement", "during illness", "after recovery", "recent years", "last decade", "formative years"]
 
-INDUSTRIES = ["technology", "healthcare", "finance", "education", "manufacturing", "retail", "entertainment", "construction", "agriculture", "transportation", "energy", "telecommunications", "hospitality", "consulting", "media"]
-
-TECHNOLOGIES = ["artificial intelligence", "machine learning", "blockchain", "cloud computing", "IoT", "virtual reality", "augmented reality", "robotics", "quantum computing", "5G", "automation", "cybersecurity"]
-
-PRODUCTS = ["smartphone app", "software platform", "physical device", "online service", "digital tool", "educational course", "fitness program", "creative work", "research paper", "business solution"]
-
 # === ADD THESE DATA POOLS ===
 
 MEMORY_TYPES = ["episodic memory", "semantic memory", "procedural memory", "emotional memory", "traumatic memory", "childhood memory", "recent memory", "vivid memory", "fragmented memory", "nostalgic memory", "suppressed memory", "triggered memory", "collective memory", "false memory", "flashbulb memory"]
@@ -355,9 +349,9 @@ PERIODS = ["during childhood", "in my teens", "college years", "early career", "
 
 INDUSTRIES = ["technology", "healthcare", "finance", "education", "manufacturing", "retail", "entertainment", "construction", "agriculture", "transportation", "energy", "telecommunications", "hospitality", "consulting", "media"]
 
-TECHNOLOGIES = ["artificial intelligence", "machine learning", "blockchain", "cloud computing", "IoT", "virtual reality", "augmented reality", "robotics", "quantum computing", "5G", "automation", "cybersecurity"]
+TECHNOLOGIES = ["artificial intelligence", "machine learning", "blockchain", "cloud computing", "IoT", "virtual reality", "augmented reality", "robotics", "quantum computing", "5G", "automation", "cybersecurity", "PyTorch", "TensorFlow", "React", "Angular", "Node.js", "Docker"]
 
-PRODUCTS = ["smartphone app", "software platform", "physical device", "online service", "digital tool", "educational course", "fitness program", "creative work", "research paper", "business solution"]
+PRODUCTS = ["smartphone app", "software platform", "physical device", "online service", "digital tool", "educational course", "fitness program", "creative work", "research paper", "business solution", "iPhone", "MacBook", "Tesla Model 3", "Samsung Galaxy", "iPad", "Surface Pro"]
 
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 # UTILITY FUNCTIONS
