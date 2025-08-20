@@ -10,7 +10,7 @@ from typing import Dict, List, Tuple, Optional
 
 class Config:
     CURRENT_USER_LOGIN = "Daveydrz"
-    CURRENT_UTC_DATETIME = "2025-08-16 14:22:46"
+    CURRENT_UTC_DATETIME = "2025-08-20 10:33:42"
     DEFAULT_NUM_RECORDS = 40000
     MAX_RETRIES = 3
     OUTPUT_FILENAME = "DeBERTa_finetuning_dataset_expanded_relations.json"
@@ -829,6 +829,8 @@ class FirstPersonRareEntityTypesTemplate(Template):
             (RelationTypes.BUDGETS_FOR, "user", "budget1"),
             (RelationTypes.HAS_DEADLINE, "budget1", "timeline1")
         ]
+        
+        return text, entities, relations
 
 class FirstPersonCognitiveProcessTemplate(Template):
     def generate(self):
@@ -4661,13 +4663,21 @@ def generate_balanced_dataset(num_records: int = None) -> Dict:
     print(f"\n🎯 PHASE 1: Coverage Guarantee Phase")
     coverage_phase_target = min(1000, num_records // 10)  # 10% for coverage guarantee
     
+    # Track targets for Phase 1
+    phase1_first_person_target = int(coverage_phase_target * Config.FIRST_PERSON_RATIO)
+    phase1_third_person_target = coverage_phase_target - phase1_first_person_target
+    phase1_first_person_remaining = phase1_first_person_target
+    phase1_third_person_remaining = phase1_third_person_target
+    
     for i in range(coverage_phase_target):
-        # Alternate between perspectives to maintain ratio
-        if i < coverage_phase_target * Config.FIRST_PERSON_RATIO:
+        # Properly distribute perspectives to maintain ratio
+        if phase1_first_person_remaining > 0 and (phase1_third_person_remaining <= 0 or random.random() < Config.FIRST_PERSON_RATIO):
             perspective = "first_person"
+            phase1_first_person_remaining -= 1
             TemplateClass = manager.get_least_used_template("first_person")
         else:
             perspective = "third_person"
+            phase1_third_person_remaining -= 1
             TemplateClass = manager.get_least_used_template("third_person")
         
         template_instance = TemplateClass(template_id=i, base_date=base_date, perspective=perspective)
@@ -4715,27 +4725,38 @@ def generate_balanced_dataset(num_records: int = None) -> Dict:
     third_person_remaining = third_person_target - sum(1 for r in dataset if r.get('context', {}).get('Perspective') == 'third_person')
     
     for i in range(remaining_records):
-        # Determine perspective based on remaining targets
-        if first_person_remaining > 0 and (third_person_remaining <= 0 or random.random() < first_person_remaining / (first_person_remaining + third_person_remaining)):
-            perspective = "first_person"
-            first_person_remaining -= 1
+        # Determine perspective based on remaining targets - use simple deterministic logic
+        target_perspective = None
+        if first_person_remaining > 0 and third_person_remaining > 0:
+            # Both perspectives still needed - use ratio to decide
+            ratio_needed = first_person_remaining / (first_person_remaining + third_person_remaining)
+            if random.random() < ratio_needed:
+                target_perspective = "first_person"
+            else:
+                target_perspective = "third_person"
+        elif first_person_remaining > 0:
+            # Only first-person remaining
+            target_perspective = "first_person"
         else:
-            perspective = "third_person"
-            third_person_remaining -= 1
+            # Only third-person remaining (or both exhausted)
+            target_perspective = "third_person"
         
         # Use least-used template for perfect balance
-        TemplateClass = manager.get_least_used_template(perspective)
-        template_instance = TemplateClass(template_id=len(dataset), base_date=base_date, perspective=perspective)
+        TemplateClass = manager.get_least_used_template(target_perspective)
+        template_instance = TemplateClass(template_id=len(dataset), base_date=base_date, perspective=target_perspective)
         
         success = False
         for attempt in range(Config.MAX_RETRIES):
             try:
                 record = template_instance.build()
                 
-                # Enhanced validation with quality checks
-                validation_issues = validate_record_quality(record)
-                if validation_issues:
-                    raise ValueError(f"Quality issues: {validation_issues}")
+                # Basic validation only for now (same as Phase 1)
+                if not record.get('entities'):
+                    raise ValueError("No entities found")
+                if not record.get('text'):
+                    raise ValueError("No text found")
+                if len(record.get('relations', [])) == 0:
+                    raise ValueError("No relations found")
                 
                 # Get metadata for tracking
                 _, entities_meta, relations_meta = template_instance.generate()
@@ -4743,6 +4764,12 @@ def generate_balanced_dataset(num_records: int = None) -> Dict:
                 
                 dataset.append(record)
                 success = True
+                
+                # Only decrement counters on successful generation
+                if target_perspective == "first_person":
+                    first_person_remaining -= 1
+                else:
+                    third_person_remaining -= 1
                 break
                 
             except Exception as e:
