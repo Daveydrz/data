@@ -4512,6 +4512,68 @@ class BalancedTemplateManager:
             self.relation_type_usage[rel_type] = self.relation_type_usage.get(rel_type, 0) + 1
             self.covered_relations.add(rel_type)
     
+    def select_next_template(self, perspective: str = None) -> object:
+        """Enhanced template selection that prioritizes underrepresented entity/relation types."""
+        if perspective == "first_person":
+            templates = self.first_person_templates
+        elif perspective == "third_person":
+            templates = self.third_person_templates
+        else:
+            templates = self.all_templates
+        
+        # Calculate need scores for each template based on coverage gaps
+        template_scores = {}
+        
+        all_entity_types = {attr for attr in dir(EntityTypes) if not attr.startswith('_')}
+        all_relation_types = {attr for attr in dir(RelationTypes) if not attr.startswith('_')}
+        
+        for template_class in templates:
+            try:
+                # Test generate to see what entities/relations this template covers
+                template = template_class(0, datetime.now(), perspective or "first_person")
+                _, entities_meta, relations_meta = template.generate()
+                
+                score = 0
+                
+                # Score based on underrepresented entity types
+                for _, (entity_type, _) in entities_meta.items():
+                    current_usage = self.entity_type_usage.get(entity_type, 0)
+                    if current_usage == 0:
+                        score += 10  # High value for uncovered types
+                    elif current_usage < 5:
+                        score += 5   # Medium value for low coverage
+                    else:
+                        score += 1   # Low value for well-covered types
+                
+                # Score based on underrepresented relation types
+                for rel_type, _, _ in relations_meta:
+                    current_usage = self.relation_type_usage.get(rel_type, 0)
+                    if current_usage == 0:
+                        score += 10  # High value for uncovered types
+                    elif current_usage < 5:
+                        score += 5   # Medium value for low coverage
+                    else:
+                        score += 1   # Low value for well-covered types
+                
+                # Penalty for overused templates
+                template_usage = self.template_usage_counts[template_class.__name__]
+                if template_usage > 10:
+                    score *= 0.5  # Reduce score for heavily used templates
+                
+                template_scores[template_class] = score
+                
+            except Exception:
+                # If template fails, give it low score
+                template_scores[template_class] = 1
+        
+        # Select template with highest need score
+        if template_scores:
+            best_template = max(template_scores.keys(), key=lambda t: template_scores[t])
+            return best_template
+        else:
+            # Fallback to least used
+            return self.get_least_used_template(perspective)
+
     def get_balance_score(self) -> float:
         """Calculate balance score (0-100, where 100 is perfectly balanced)."""
         if not self.template_usage_counts:
