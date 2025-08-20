@@ -4393,33 +4393,630 @@ def print_statistics(stats: Dict):
     for rel_type, count in stats["top_relation_types"]:
         print(f"  - {rel_type}: {count}")
 
-def main():
-    """Main execution function."""
-    try:
-        result = generate_dataset()
+# --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+# ENHANCED BALANCED DATASET GENERATION SYSTEM
+# --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+class BalancedTemplateManager:
+    """Manages template usage tracking for perfectly balanced dataset generation."""
+    
+    def __init__(self, first_person_templates: List, third_person_templates: List):
+        self.first_person_templates = first_person_templates
+        self.third_person_templates = third_person_templates
+        self.all_templates = first_person_templates + third_person_templates
         
-        if result["dataset"]:
-            filename = save_dataset(result)
-            print_statistics(result["statistics"])
-            
-            print(f"\nDataset saved to: {filename}")
-            
-            # Show sample records highlighting expanded relations
-            print(f"\nSample Records with Expanded Relations:")
-            
-            sample_records = random.sample(result["dataset"], min(5, len(result["dataset"])))
-            for i, record in enumerate(sample_records):
-                print(f"\n--- Sample {i+1} ---")
-                print(f"Text: {record['text']}")
-                print(f"Relations: {[r['type'] for r in record['relations']]}")
-                print(f"Perspective: {record.get('context', {}).get('Perspective', 'unknown')}")
-                
+        # Track usage counts for each template
+        self.template_usage_counts = {template.__name__: 0 for template in self.all_templates}
+        
+        # Track entity and relation type usage
+        self.entity_type_usage = {}
+        self.relation_type_usage = {}
+        
+        # Initialize entity and relation type tracking
+        all_entity_types = {attr for attr in dir(EntityTypes) if not attr.startswith('_')}
+        all_relation_types = {attr for attr in dir(RelationTypes) if not attr.startswith('_')}
+        
+        for entity_type in all_entity_types:
+            self.entity_type_usage[getattr(EntityTypes, entity_type)] = 0
+        for relation_type in all_relation_types:
+            self.relation_type_usage[getattr(RelationTypes, relation_type)] = 0
+        
+        # Coverage tracking
+        self.covered_entities = set()
+        self.covered_relations = set()
+        
+        print(f"🎯 BalancedTemplateManager initialized:")
+        print(f"   - Total templates: {len(self.all_templates)}")
+        print(f"   - Entity types to balance: {len(all_entity_types)}")
+        print(f"   - Relation types to balance: {len(all_relation_types)}")
+    
+    def get_least_used_template(self, perspective: str = None) -> object:
+        """Get the least used template, optionally filtered by perspective."""
+        if perspective == "first_person":
+            templates = self.first_person_templates
+        elif perspective == "third_person":
+            templates = self.third_person_templates
         else:
-            print("ERROR: No records were successfully generated!")
-            print_statistics(result["statistics"])
+            templates = self.all_templates
+        
+        # Find template with minimum usage count
+        min_usage = min(self.template_usage_counts[template.__name__] for template in templates)
+        least_used_templates = [template for template in templates 
+                              if self.template_usage_counts[template.__name__] == min_usage]
+        
+        return random.choice(least_used_templates)
+    
+    def record_template_usage(self, template_class: object, entities_meta: Dict, relations_meta: List):
+        """Record usage of a template and update entity/relation tracking."""
+        template_name = template_class.__name__
+        self.template_usage_counts[template_name] += 1
+        
+        # Track entity usage
+        for _, (entity_type, _) in entities_meta.items():
+            self.entity_type_usage[entity_type] = self.entity_type_usage.get(entity_type, 0) + 1
+            self.covered_entities.add(entity_type)
+        
+        # Track relation usage
+        for rel_type, _, _ in relations_meta:
+            self.relation_type_usage[rel_type] = self.relation_type_usage.get(rel_type, 0) + 1
+            self.covered_relations.add(rel_type)
+    
+    def get_balance_score(self) -> float:
+        """Calculate balance score (0-100, where 100 is perfectly balanced)."""
+        if not self.template_usage_counts:
+            return 0.0
+        
+        usage_counts = list(self.template_usage_counts.values())
+        if not usage_counts:
+            return 100.0
+            
+        non_zero_counts = [count for count in usage_counts if count > 0]
+        if not non_zero_counts:
+            return 100.0
+        
+        min_usage = min(non_zero_counts)
+        max_usage = max(non_zero_counts)
+        
+        if max_usage == 0:
+            return 100.0
+        
+        # For small datasets, consider if most templates are used at least once
+        total_templates = len(self.template_usage_counts)
+        used_templates = len(non_zero_counts)
+        coverage_factor = used_templates / total_templates
+        
+        # Balance score: combination of usage balance and template coverage
+        balance_ratio = min_usage / max_usage if max_usage > 0 else 1.0
+        balance_score = balance_ratio * coverage_factor * 100
+        
+        return balance_score
+    
+    def get_coverage_stats(self) -> Dict:
+        """Get detailed coverage statistics."""
+        all_entity_types = {attr for attr in dir(EntityTypes) if not attr.startswith('_')}
+        all_relation_types = {attr for attr in dir(RelationTypes) if not attr.startswith('_')}
+        
+        entity_coverage = len(self.covered_entities) / len(all_entity_types) * 100
+        relation_coverage = len(self.covered_relations) / len(all_relation_types) * 100
+        
+        return {
+            "entity_coverage_percent": entity_coverage,
+            "relation_coverage_percent": relation_coverage,
+            "covered_entities": len(self.covered_entities),
+            "total_entities": len(all_entity_types),
+            "covered_relations": len(self.covered_relations),
+            "total_relations": len(all_relation_types),
+            "balance_score": self.get_balance_score()
+        }
+    
+    def get_usage_distribution(self) -> Dict:
+        """Get usage distribution for templates, entities, and relations."""
+        return {
+            "template_usage": dict(self.template_usage_counts),
+            "entity_usage": dict(self.entity_type_usage),
+            "relation_usage": dict(self.relation_type_usage)
+        }
+
+def generate_balanced_dataset(num_records: int = None) -> Dict:
+    """Generate perfectly balanced dataset with enhanced tracking and two-phase algorithm."""
+    
+    if num_records is None:
+        num_records = Config.DEFAULT_NUM_RECORDS
+    
+    print(f"🚀 ENHANCED BALANCED DATASET GENERATION")
+    print(f"============================================================")
+    print(f"🎯 Target: {num_records} perfectly balanced records")
+    print(f"📊 Two-phase algorithm: Coverage Guarantee + Balanced Distribution")
+    
+    dataset = []
+    base_date = datetime.strptime(Config.CURRENT_UTC_DATETIME, "%Y-%m-%d %H:%M:%S")
+    failed_generations = 0
+    failure_reasons = {}
+    quality_issues = {}
+    
+    # Define template classes by perspective (same as original)
+    first_person_templates = [
+        FirstPersonExpandedTravelTemplate,
+        FirstPersonObjectOwnershipTemplate,
+        FirstPersonHealthGoalTemplate,
+        FirstPersonWorkRoleTemplate,
+        FirstPersonWeatherMoodTemplate,
+        FirstPersonTransportationMemoryTemplate,
+        FirstPersonRoomPreferenceTemplate,
+        FirstPersonMediaConsumptionTemplate,
+        FirstPersonBusinessInteractionTemplate,
+        FirstPersonEquipmentOwnershipTemplate,
+        FirstPersonSocialAnxietyTemplate,
+        FirstPersonSkillDevelopmentProgressTemplate,
+        FirstPersonNicknameStoryTemplate,
+        FirstPersonBorrowLendTemplate,
+        FirstPersonFamilyTraditionTemplate,
+        FirstPersonScheduleStressTemplate,
+        FirstPersonValueConflictTemplate,
+        FirstPersonSensoryOverloadTemplate,
+        FirstPersonMoneyGoalTemplate,
+        FirstPersonIdeaDevelopmentTemplate,
+        FirstPersonBeliefChallengeTemplate,
+        FirstPersonTasteMemoryTemplate,
+        FirstPersonOpinionChangeTemplate,
+        FirstPersonAttributeDevelopmentTemplate,
+        FirstPersonChildhoodMemoryTemplate,
+        FirstPersonLossGriefTemplate,
+        FirstPersonCareerMilestoneTemplate,
+        FirstPersonFearOvercomeTemplate,
+        FirstPersonCreativeAchievementTemplate,
+        FirstPersonHealthScareTemplate,
+        FirstPersonFailureLessonTemplate,
+        FirstPersonMentorshipMemoryTemplate,
+        FirstPersonFinalCognitiveTemplate,
+        FirstPersonAllSensoryTemplate,
+        FirstPersonTimeScheduleTemplate,
+        FirstPersonLocationExpertiseTraitTemplate,
+        FirstPersonBeliefsOpinionsTemplate,
+        FirstPersonHealthFinanceTemplate,
+        FirstPersonIdentityNicknameTemplate,
+        FirstPersonRareEntityTypesTemplate,
+        FirstPersonCognitiveProcessTemplate,
+        FirstPersonCompleteSensoryTemplate,
+        FirstPersonTemporalRoutineTemplate,
+        FirstPersonLocationExpertiseTemplate,
+        FirstPersonHopesPlanningTemplate,
+        FirstPersonBeliefsValuesTemplate,
+        FirstPersonHealthManagementTemplate,
+        FirstPersonFinancialGoalsTemplate,
+        FirstPersonNicknameIdentityTemplate,
+        FirstPersonIdeaInnovationTemplate,
+        FirstPersonLifeStageReflectionTemplate,
+        FirstPersonCulturalLearningTemplate,
+        FirstPersonIndustryExpertiseTemplate,
+        FirstPersonTimeAmountTemplate,
+        FirstPersonThinkingProcessTemplate,
+        FirstPersonRegretAnticipationTemplate,
+        FirstPersonCompleteSensoryTemplate,
+        FirstPersonRepeatingRoutineTemplate,
+        FirstPersonComprehensiveCoverageTemplate,
+        FirstPersonComplexMemoryTemplate,
+        FirstPersonMemoryRecallTemplate,
+        FirstPersonAchievementTemplate,
+        FirstPersonMediaPreferencesTemplate,
+        FirstPersonLifeEventsTemplate
+    ]
+    
+    third_person_templates = [
+        ThirdPersonPetTemplate,
+        ThirdPersonComprehensiveMemoryTemplate,
+        ThirdPersonPetCareTemplate,
+        ThirdPersonAdvancedCognitiveTemplate,
+        ThirdPersonTemporalExpertiseTemplate,
+        ThirdPersonRelationshipMaintainerTemplate,
+        ThirdPersonIndustryInnovationTemplate,
+        ThirdPersonLifeStageWisdomTemplate,
+        ThirdPersonCulturalPreservationTemplate,
+        ThirdPersonLifeTransitionTemplate,
+        ThirdPersonCulturalExperienceTemplate,
+        ThirdPersonGenerosityTemplate,
+        ThirdPersonSkillMasteryTemplate,
+        ThirdPersonCommunityLeadershipTemplate,
+        ThirdPersonVehicleOwnershipTemplate,
+        ThirdPersonMediaProductionTemplate,
+        ThirdPersonWeatherImpactTemplate,
+        ThirdPersonGroupMembershipTemplate,
+        ThirdPersonFamilyRelationshipTemplate,
+        ThirdPersonCausationTemplate,
+        ThirdPersonLocationProximityTemplate,
+        ThirdPersonPlatformInfluenceTemplate,
+        ThirdPersonRoomOrganizationTemplate,
+        ThirdPersonGenrePreferenceTemplate,
+        ThirdPersonBusinessOwnershipTemplate,
+        ThirdPersonTransportationRoutineTemplate,
+        ThirdPersonConditionManagementTemplate,
+        ThirdPersonSentimentAnalysisTemplate,
+        ThirdPersonIntentActionTemplate,
+        ThirdPersonProximityNetworkTemplate,
+        ThirdPersonAttributeRecognitionTemplate,
+        ThirdPersonDateEventTemplate,
+        ThirdPersonPartOfSystemTemplate,
+        ThirdPersonWeatherAdaptationTemplate,
+        ThirdPersonFriendshipBondTemplate,
+        ThirdPersonEquipmentSharingTemplate,
+        ThirdPersonTimeManagementTemplate,
+        ThirdPersonBeliefInfluenceTemplate,
+        ThirdPersonLearningMentorshipTemplate,
+        ThirdPersonEmotionalJourneyTemplate
+    ]
+    
+    # Initialize balanced template manager
+    manager = BalancedTemplateManager(first_person_templates, third_person_templates)
+    
+    # Calculate target counts
+    first_person_target = int(num_records * Config.FIRST_PERSON_RATIO)
+    third_person_target = num_records - first_person_target
+    
+    print(f"📋 Generation Plan:")
+    print(f"   - First-person records: {first_person_target} ({Config.FIRST_PERSON_RATIO:.0%})")
+    print(f"   - Third-person records: {third_person_target} ({Config.THIRD_PERSON_RATIO:.0%})")
+    print(f"   - Templates per perspective: {len(first_person_templates)} + {len(third_person_templates)}")
+    
+    # PHASE 1: Coverage Guarantee Phase
+    print(f"\n🎯 PHASE 1: Coverage Guarantee Phase")
+    coverage_phase_target = min(1000, num_records // 10)  # 10% for coverage guarantee
+    
+    for i in range(coverage_phase_target):
+        # Alternate between perspectives to maintain ratio
+        if i < coverage_phase_target * Config.FIRST_PERSON_RATIO:
+            perspective = "first_person"
+            TemplateClass = manager.get_least_used_template("first_person")
+        else:
+            perspective = "third_person"
+            TemplateClass = manager.get_least_used_template("third_person")
+        
+        template_instance = TemplateClass(template_id=i, base_date=base_date, perspective=perspective)
+        
+        success = False
+        for attempt in range(Config.MAX_RETRIES):
+            try:
+                record = template_instance.build()
+                
+                # Enhanced validation
+                if not record.get('entities'):
+                    raise ValueError("No entities found")
+                if not record.get('text'):
+                    raise ValueError("No text found")
+                if len(record.get('relations', [])) == 0:
+                    raise ValueError("No relations found")
+                
+                # Get metadata for tracking
+                _, entities_meta, relations_meta = template_instance.generate()
+                manager.record_template_usage(TemplateClass, entities_meta, relations_meta)
+                
+                dataset.append(record)
+                success = True
+                break
+                
+            except Exception as e:
+                error_type = type(e).__name__
+                failure_reasons[error_type] = failure_reasons.get(error_type, 0) + 1
+                
+                if attempt == Config.MAX_RETRIES - 1:
+                    failed_generations += 1
+        
+        # Progress reporting for coverage phase
+        if (i + 1) % 100 == 0 or i + 1 == coverage_phase_target:
+            coverage_stats = manager.get_coverage_stats()
+            print(f"   Coverage Phase: {i+1}/{coverage_phase_target} | "
+                  f"Entities: {coverage_stats['entity_coverage_percent']:.1f}% | "
+                  f"Relations: {coverage_stats['relation_coverage_percent']:.1f}% | "
+                  f"Balance: {coverage_stats['balance_score']:.1f}%")
+    
+    # PHASE 2: Balanced Distribution Phase
+    print(f"\n⚖️  PHASE 2: Balanced Distribution Phase")
+    remaining_records = num_records - len(dataset)
+    first_person_remaining = first_person_target - sum(1 for r in dataset if r.get('context', {}).get('Perspective') == 'first_person')
+    third_person_remaining = third_person_target - sum(1 for r in dataset if r.get('context', {}).get('Perspective') == 'third_person')
+    
+    for i in range(remaining_records):
+        # Determine perspective based on remaining targets
+        if first_person_remaining > 0 and (third_person_remaining <= 0 or random.random() < first_person_remaining / (first_person_remaining + third_person_remaining)):
+            perspective = "first_person"
+            first_person_remaining -= 1
+        else:
+            perspective = "third_person"
+            third_person_remaining -= 1
+        
+        # Use least-used template for perfect balance
+        TemplateClass = manager.get_least_used_template(perspective)
+        template_instance = TemplateClass(template_id=len(dataset), base_date=base_date, perspective=perspective)
+        
+        success = False
+        for attempt in range(Config.MAX_RETRIES):
+            try:
+                record = template_instance.build()
+                
+                # Enhanced validation with quality checks
+                validation_issues = validate_record_quality(record)
+                if validation_issues:
+                    raise ValueError(f"Quality issues: {validation_issues}")
+                
+                # Get metadata for tracking
+                _, entities_meta, relations_meta = template_instance.generate()
+                manager.record_template_usage(TemplateClass, entities_meta, relations_meta)
+                
+                dataset.append(record)
+                success = True
+                break
+                
+            except Exception as e:
+                error_type = type(e).__name__
+                failure_reasons[error_type] = failure_reasons.get(error_type, 0) + 1
+                
+                if "Quality issues" in str(e):
+                    for issue in str(e).split("Quality issues: ")[1].strip("[]'").split("', '"):
+                        quality_issues[issue] = quality_issues.get(issue, 0) + 1
+                
+                if attempt == Config.MAX_RETRIES - 1:
+                    failed_generations += 1
+        
+        # Enhanced progress reporting
+        if (i + 1) % Config.PROGRESS_INTERVAL == 0 or i + 1 == remaining_records:
+            current_total = len(dataset)
+            coverage_stats = manager.get_coverage_stats()
+            print(f"   Balanced Phase: {current_total}/{num_records} | "
+                  f"Balance: {coverage_stats['balance_score']:.1f}% | "
+                  f"Failed: {failed_generations} | "
+                  f"Success: {(current_total / num_records * 100):.1f}%")
+    
+    # Generate enhanced statistics
+    stats = generate_balanced_statistics(dataset, failed_generations, failure_reasons, quality_issues, 
+                                       len(first_person_templates) + len(third_person_templates), manager)
+    
+    return {
+        "dataset": dataset,
+        "statistics": stats,
+        "metadata": {
+            "generation_method": "enhanced_balanced",
+            "num_records_requested": num_records,
+            "num_records_generated": len(dataset),
+            "balance_manager": manager.get_usage_distribution(),
+            "coverage_stats": manager.get_coverage_stats()
+        }
+    }
+
+def generate_balanced_statistics(dataset: List[Dict], failed_generations: int, failure_reasons: Dict, 
+                               quality_issues: Dict, num_templates: int, manager: BalancedTemplateManager) -> Dict:
+    """Generate enhanced statistics with balance scoring and detailed coverage analysis."""
+    
+    if not dataset:
+        return {
+            "total_generated": 0,
+            "failed_generations": failed_generations,
+            "success_rate": 0.0,
+            "balance_score": 0.0,
+            "coverage_stats": manager.get_coverage_stats()
+        }
+    
+    # Perspective distribution
+    first_person_count = sum(1 for record in dataset if record.get('context', {}).get('Perspective') == 'first_person')
+    third_person_count = len(dataset) - first_person_count
+    
+    # Entity and relation analysis
+    entity_type_counts = {}
+    relation_type_counts = {}
+    
+    for record in dataset:
+        for entity in record.get("entities", []):
+            entity_type = entity.get("type", "UNKNOWN")
+            entity_type_counts[entity_type] = entity_type_counts.get(entity_type, 0) + 1
+        
+        for relation in record.get("relations", []):
+            relation_type = relation.get("type", "UNKNOWN")
+            relation_type_counts[relation_type] = relation_type_counts.get(relation_type, 0) + 1
+    
+    # Calculate balance scores
+    coverage_stats = manager.get_coverage_stats()
+    template_balance = manager.get_balance_score()
+    
+    # Entity balance score
+    entity_counts = list(entity_type_counts.values())
+    entity_balance = 100.0
+    if entity_counts:
+        min_entity = min(entity_counts)
+        max_entity = max(entity_counts)
+        entity_balance = (min_entity / max_entity * 100) if max_entity > 0 else 100.0
+    
+    # Relation balance score
+    relation_counts = list(relation_type_counts.values())
+    relation_balance = 100.0
+    if relation_counts:
+        min_relation = min(relation_counts)
+        max_relation = max(relation_counts)
+        relation_balance = (min_relation / max_relation * 100) if max_relation > 0 else 100.0
+    
+    # Overall balance score (weighted average)
+    overall_balance = (template_balance * 0.4 + entity_balance * 0.3 + relation_balance * 0.3)
+    
+    # Top entity and relation types
+    top_entity_types = sorted(entity_type_counts.items(), key=lambda x: x[1], reverse=True)[:15]
+    top_relation_types = sorted(relation_type_counts.items(), key=lambda x: x[1], reverse=True)[:15]
+    
+    # Calculate quality metrics
+    avg_entities_per_record = sum(len(record.get("entities", [])) for record in dataset) / len(dataset)
+    avg_relations_per_record = sum(len(record.get("relations", [])) for record in dataset) / len(dataset)
+    
+    return {
+        "total_generated": len(dataset),
+        "failed_generations": failed_generations,
+        "success_rate": (len(dataset) / (len(dataset) + failed_generations)) * 100 if (len(dataset) + failed_generations) > 0 else 0,
+        "templates_used": num_templates,
+        
+        # Enhanced balance metrics
+        "balance_scores": {
+            "overall_balance": overall_balance,
+            "template_balance": template_balance,
+            "entity_balance": entity_balance,
+            "relation_balance": relation_balance
+        },
+        
+        # Perspective distribution
+        "perspective_distribution": {
+            "first_person": {"count": first_person_count, "percentage": first_person_count / len(dataset) * 100},
+            "third_person": {"count": third_person_count, "percentage": third_person_count / len(dataset) * 100}
+        },
+        
+        # Coverage statistics
+        "coverage_stats": coverage_stats,
+        
+        # Content analysis
+        "content_analysis": {
+            "unique_entity_types": len(entity_type_counts),
+            "unique_relation_types": len(relation_type_counts),
+            "avg_entities_per_record": avg_entities_per_record,
+            "avg_relations_per_record": avg_relations_per_record
+        },
+        
+        # Top types
+        "top_entity_types": top_entity_types,
+        "top_relation_types": top_relation_types,
+        
+        # Error analysis
+        "failure_reasons": failure_reasons,
+        "quality_issues": quality_issues
+    }
+
+def print_balanced_statistics(stats: Dict):
+    """Print enhanced statistics with balance scores and detailed analysis."""
+    print(f"\n======================================================================")
+    print(f"ENHANCED BALANCED DATASET GENERATION COMPLETE")
+    print(f"======================================================================")
+    print(f"Total generated: {stats['total_generated']}")
+    print(f"Failed generations: {stats['failed_generations']}")
+    print(f"Success rate: {stats['success_rate']:.1f}%")
+    print(f"Templates used: {stats['templates_used']}")
+    
+    # Balance scores
+    balance = stats.get('balance_scores', {})
+    print(f"\n--- BALANCE SCORES ---")
+    print(f"Overall Balance Score: {balance.get('overall_balance', 0):.1f}%")
+    print(f"  - Template Balance: {balance.get('template_balance', 0):.1f}%")
+    print(f"  - Entity Balance: {balance.get('entity_balance', 0):.1f}%")
+    print(f"  - Relation Balance: {balance.get('relation_balance', 0):.1f}%")
+    
+    # Perspective distribution
+    perspective = stats.get('perspective_distribution', {})
+    print(f"\n--- PERSPECTIVE DISTRIBUTION ---")
+    if perspective.get('first_person'):
+        print(f"First-person records: {perspective['first_person']['count']} ({perspective['first_person']['percentage']:.1f}%)")
+    if perspective.get('third_person'):
+        print(f"Third-person records: {perspective['third_person']['count']} ({perspective['third_person']['percentage']:.1f}%)")
+    
+    # Coverage statistics
+    coverage = stats.get('coverage_stats', {})
+    print(f"\n--- COVERAGE ANALYSIS ---")
+    print(f"Entity coverage: {coverage.get('entity_coverage_percent', 0):.1f}% ({coverage.get('covered_entities', 0)}/{coverage.get('total_entities', 0)})")
+    print(f"Relation coverage: {coverage.get('relation_coverage_percent', 0):.1f}% ({coverage.get('covered_relations', 0)}/{coverage.get('total_relations', 0)})")
+    
+    # Content analysis
+    content = stats.get('content_analysis', {})
+    print(f"\n--- CONTENT ANALYSIS ---")
+    print(f"Unique entity types: {content.get('unique_entity_types', 0)}")
+    print(f"Unique relation types: {content.get('unique_relation_types', 0)}")
+    print(f"Average entities per record: {content.get('avg_entities_per_record', 0):.1f}")
+    print(f"Average relations per record: {content.get('avg_relations_per_record', 0):.1f}")
+    
+    # Top types
+    print(f"\n--- TOP ENTITY TYPES ---")
+    for entity_type, count in stats.get("top_entity_types", [])[:10]:
+        print(f"  - {entity_type}: {count}")
+    
+    print(f"\n--- TOP RELATION TYPES ---")
+    for rel_type, count in stats.get("top_relation_types", [])[:10]:
+        print(f"  - {rel_type}: {count}")
+    
+    # Error analysis
+    if stats.get('failure_reasons'):
+        print(f"\n--- ERROR ANALYSIS ---")
+        for reason, count in stats['failure_reasons'].items():
+            print(f"  - {reason}: {count}")
+
+def main():
+    """Main execution function with support for both generation methods."""
+    import sys
+    
+    # Check for command line arguments to choose generation method
+    use_balanced_generation = False
+    if len(sys.argv) > 1:
+        if sys.argv[1].lower() in ['balanced', 'balance', 'enhanced', 'b']:
+            use_balanced_generation = True
+        elif sys.argv[1].lower() in ['original', 'standard', 'o']:
+            use_balanced_generation = False
+        else:
+            print("Usage: python data.py [balanced|original]")
+            print("  balanced/b/enhanced: Use enhanced balanced generation")
+            print("  original/o/standard: Use original generation (default)")
+            return
+    
+    try:
+        if use_balanced_generation:
+            print("🎯 Using Enhanced Balanced Generation Method")
+            result = generate_balanced_dataset()
+            
+            if result["dataset"]:
+                filename = save_dataset(result)
+                print_balanced_statistics(result["statistics"])
+                
+                print(f"\nDataset saved to: {filename}")
+                
+                # Show enhanced metadata
+                metadata = result.get("metadata", {})
+                coverage_stats = metadata.get("coverage_stats", {})
+                print(f"\n🎯 Enhanced Generation Metadata:")
+                print(f"   - Generation method: {metadata.get('generation_method', 'unknown')}")
+                print(f"   - Final balance score: {coverage_stats.get('balance_score', 0):.1f}%")
+                print(f"   - Entity coverage: {coverage_stats.get('entity_coverage_percent', 0):.1f}%")
+                print(f"   - Relation coverage: {coverage_stats.get('relation_coverage_percent', 0):.1f}%")
+                
+                # Show sample records with enhanced details
+                print(f"\nSample Records with Enhanced Balance Analysis:")
+                
+                sample_records = random.sample(result["dataset"], min(5, len(result["dataset"])))
+                for i, record in enumerate(sample_records):
+                    print(f"\n--- Enhanced Sample {i+1} ---")
+                    print(f"Text: {record['text']}")
+                    print(f"Relations: {[r['type'] for r in record['relations']]}")
+                    print(f"Entities: {[e['type'] for e in record.get('entities', [])]}")
+                    print(f"Perspective: {record.get('context', {}).get('Perspective', 'unknown')}")
+                    
+            else:
+                print("ERROR: No records were successfully generated with balanced method!")
+                print_balanced_statistics(result["statistics"])
+        
+        else:
+            print("📊 Using Original Generation Method")
+            result = generate_dataset()
+            
+            if result["dataset"]:
+                filename = save_dataset(result)
+                print_statistics(result["statistics"])
+                
+                print(f"\nDataset saved to: {filename}")
+                
+                # Show sample records highlighting expanded relations
+                print(f"\nSample Records with Expanded Relations:")
+                
+                sample_records = random.sample(result["dataset"], min(5, len(result["dataset"])))
+                for i, record in enumerate(sample_records):
+                    print(f"\n--- Sample {i+1} ---")
+                    print(f"Text: {record['text']}")
+                    print(f"Relations: {[r['type'] for r in record['relations']]}")
+                    print(f"Perspective: {record.get('context', {}).get('Perspective', 'unknown')}")
+                    
+            else:
+                print("ERROR: No records were successfully generated!")
+                print_statistics(result["statistics"])
             
     except Exception as e:
         print(f"Fatal error during dataset generation: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     main()
