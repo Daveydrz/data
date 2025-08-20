@@ -829,6 +829,8 @@ class FirstPersonRareEntityTypesTemplate(Template):
             (RelationTypes.BUDGETS_FOR, "user", "budget1"),
             (RelationTypes.HAS_DEADLINE, "budget1", "timeline1")
         ]
+        
+        return text, entities, relations
 
 class FirstPersonCognitiveProcessTemplate(Template):
     def generate(self):
