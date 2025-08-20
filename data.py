@@ -260,7 +260,7 @@ SKILLS = ["Python programming", "data analysis", "machine learning", "project ma
 
 LOCATIONS = ["downtown office", "co-working space", "home office", "local library", "coffee shop", "university campus", "tech hub", "community center", "innovation lab", "startup incubator", "beach house", "mountain cabin", "city apartment", "suburban home", "hotel room", "conference center", "shared workspace", "outdoor terrace"]
 
-ORGANIZATIONS = ["Innovate Corp", "DataSolutions Inc.", "Orion Robotics", "GreenScape Environmental", "Starlight Studios", "Apex Health", "QuantumLeap AI", "Helios Energy", "TechFlow Systems", "BlueSky Dynamics", "NovaTech", "EcoVision", "Phoenix Labs", "Skyline Industries", "Meridian Tech", "Digital Frontier", "CloudWorks", "NextGen Solutions", "Global Innovations", "Future Systems"]
+ORGANIZATIONS = ["Innovate Corp", "DataSolutions Inc.", "Orion Robotics", "GreenScape Environmental", "Starlight Studios", "Apex Health", "QuantumLeap AI", "Helios Energy", "TechFlow Systems", "BlueSky Dynamics", "NovaTech", "EcoVision", "Phoenix Labs", "Skyline Industries", "Meridian Tech", "Digital Frontier", "CloudWorks", "NextGen Solutions", "Global Innovations", "Future Systems", "Toyota", "Ford", "MIT", "AWS", "Apple", "Microsoft", "Google", "Facebook", "Tesla"]
 
 ACTIVITIES = ["developing software", "analyzing data", "designing interfaces", "managing projects", "conducting research", "teaching classes", "writing documentation", "testing applications", "building prototypes", "creating presentations", "traveling", "exercising", "reading", "cooking", "meditating", "networking", "mentoring", "strategizing", "problem-solving", "brainstorming"]
 
@@ -818,7 +818,7 @@ class FirstPersonRareEntityTypesTemplate(Template):
         entities = {
             "user": (EntityTypes.PRONOUN, "I"),
             "time1": (EntityTypes.TIME, time),
-            "amount1": (EntityTypes.AMOUNT, amount),
+            "amount1": (EntityTypes.DURATION, amount),
             "budget1": (EntityTypes.BUDGET, budget),
             "timeline1": (EntityTypes.TIMELINE, timeline)
         }
@@ -1246,9 +1246,9 @@ class FirstPersonTimeAmountTemplate(Template):
         text = f"Every day at {specific_time}, I spend {amount} on {activity} at {location}. I do this {frequency} to develop my {trait}."
         
         entities = {
-            "user": (EntityTypes.PRONOUN, "I"),
+            "user": (EntityTypes.PERSON, "I"),
             "time1": (EntityTypes.TIME, specific_time),
-            "amount1": (EntityTypes.AMOUNT, amount),
+            "amount1": (EntityTypes.DURATION, amount),
             "activity1": (EntityTypes.ACTIVITY, activity),
             "freq1": (EntityTypes.FREQUENCY, frequency),
             "trait1": (EntityTypes.TRAIT, trait),
@@ -1581,7 +1581,7 @@ class FirstPersonComprehensiveCoverageTemplate(Template):
         entities = {
             "user": (EntityTypes.PRONOUN, "I"),
             "time1": (EntityTypes.TIME, time),
-            "amount1": (EntityTypes.AMOUNT, amount),
+            "amount1": (EntityTypes.DURATION, amount),
             "activity1": (EntityTypes.ACTIVITY, activity),
             "trait1": (EntityTypes.TRAIT, trait),
             "expert1": (EntityTypes.SKILL, expertise),
@@ -2663,38 +2663,6 @@ class FirstPersonIndustryExpertiseTemplate(Template):
             (RelationTypes.ORGANIZES, "user", "product1"),
             (RelationTypes.HAS_SKILL, "user", "expert1"),
             (RelationTypes.USES, "user", "tech1")
-        ]
-        
-        return text, entities, relations
-
-class FirstPersonTimeAmountTemplate(Template):
-    def generate(self):
-        specific_time = random.choice(["8:30 AM", "2:15 PM", "7:45 PM", "11:00 AM"])
-        activity = random.choice(ACTIVITIES)
-        amount = random.choice(["2 hours", "45 minutes", "3 hours", "90 minutes"])
-        frequency = random.choice(FREQUENCY_DETAILED)
-        trait = random.choice(["patience", "focus", "dedication", "consistency", "discipline"])
-        location = random.choice(LOCATIONS)
-        
-        text = f"Every day at {specific_time}, I spend {amount} on {activity} at {location}. I do this {frequency} to develop my {trait}."
-        
-        entities = {
-            "user": (EntityTypes.PRONOUN, "I"),
-            "time1": (EntityTypes.TIME, specific_time),
-            "amount1": (EntityTypes.AMOUNT, amount),
-            "activity1": (EntityTypes.ACTIVITY, activity),
-            "freq1": (EntityTypes.FREQUENCY, frequency),
-            "trait1": (EntityTypes.TRAIT, trait),
-            "loc1": (EntityTypes.LOCATION, location)
-        }
-        
-        relations = [
-            (RelationTypes.STARTS_AT, "activity1", "time1"),
-            (RelationTypes.FOR_DURATION, "activity1", "amount1"),
-            (RelationTypes.DOES_ACTIVITY, "user", "activity1"),
-            (RelationTypes.HAS_FREQUENCY, "activity1", "freq1"),
-            (RelationTypes.HAS_TRAIT, "user", "trait1"),
-            (RelationTypes.LOCATED_AT, "user", "loc1")
         ]
         
         return text, entities, relations
@@ -3976,6 +3944,84 @@ class ThirdPersonEmotionalJourneyTemplate(Template):
         
         return text, entities, relations
 
+# === DISAMBIGUATION TEMPLATES ===
+# These templates provide contrastive examples to fix systematic mislabeling
+
+class FirstPersonOrganizationContextTemplate(Template):
+    def generate(self):
+        # Provides contrastive examples: Toyota as organization vs platform
+        org = random.choice(["Toyota", "Ford", "MIT", "AWS", "Apple", "Microsoft"])
+        role = random.choice(["engineer", "researcher", "analyst", "manager"])
+        context = random.choice(["acquisition", "merger", "partnership", "employment"])
+        
+        text = f"I work as a {role} at {org}. The company is involved in a major {context} this year."
+        
+        entities = {
+            "user": (EntityTypes.PERSON, "I"),
+            "role1": (EntityTypes.ROLE, role),
+            "org1": (EntityTypes.ORGANIZATION, org),
+            "context1": (EntityTypes.CONCEPT, context)
+        }
+        
+        relations = [
+            (RelationTypes.WORKS_FOR, "user", "org1"),
+            (RelationTypes.HAS_ROLE, "user", "role1"),
+            (RelationTypes.PARTICIPATES_IN, "org1", "context1")
+        ]
+        
+        return text, entities, relations
+
+class FirstPersonPlatformContextTemplate(Template):
+    def generate(self):
+        # Contrastive: Facebook/YouTube as platforms for content
+        platform = random.choice(["Facebook", "YouTube", "LinkedIn", "Twitter"])
+        content = random.choice(["posts", "videos", "articles", "updates"])
+        activity = random.choice(["sharing", "creating", "posting", "uploading"])
+        
+        text = f"I've been {activity} {content} on {platform} about my projects. The platform helps me reach more people."
+        
+        entities = {
+            "user": (EntityTypes.PERSON, "I"),
+            "content1": (EntityTypes.MEDIA, content),
+            "plat1": (EntityTypes.PLATFORM, platform),
+            "activity1": (EntityTypes.ACTIVITY, activity),
+            "proj1": (EntityTypes.PROJECT, "projects")
+        }
+        
+        relations = [
+            (RelationTypes.USES, "user", "plat1"),
+            (RelationTypes.DOES_ACTIVITY, "user", "activity1"),
+            (RelationTypes.ABOUT_TOPIC, "content1", "proj1")
+        ]
+        
+        return text, entities, relations
+
+class FirstPersonFunctionWordTemplate(Template):
+    def generate(self):
+        # Prevents "will" from being tagged as PRONOUN in function word contexts
+        activity = random.choice(ACTIVITIES)
+        location = random.choice(LOCATIONS)
+        time = random.choice(["tomorrow", "next week", "soon", "later"])
+        
+        text = f"The conference will be held at {location} {time}. I will attend and focus on {activity}."
+        
+        entities = {
+            "user": (EntityTypes.PERSON, "I"),
+            "conf1": (EntityTypes.EVENT, "conference"),
+            "loc1": (EntityTypes.LOCATION, location),
+            "time1": (EntityTypes.TIME, time),
+            "activity1": (EntityTypes.ACTIVITY, activity)
+        }
+        
+        relations = [
+            (RelationTypes.LOCATED_AT, "conf1", "loc1"),
+            (RelationTypes.HAPPENS_ON, "conf1", "time1"),
+            (RelationTypes.ATTENDS, "user", "conf1"),
+            (RelationTypes.DOES_ACTIVITY, "user", "activity1")
+        ]
+        
+        return text, entities, relations
+
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 # MAIN GENERATION FUNCTION
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
@@ -4049,7 +4095,10 @@ def generate_dataset(num_records: int = None) -> Dict:
         FirstPersonComprehensiveCoverageTemplate,
         FirstPersonAchievementTemplate,
         FirstPersonMediaPreferencesTemplate,
-        FirstPersonLifeEventsTemplate
+        FirstPersonLifeEventsTemplate,
+        FirstPersonOrganizationContextTemplate,
+        FirstPersonPlatformContextTemplate,
+        FirstPersonFunctionWordTemplate
     ]
     
     third_person_templates = [
@@ -4591,7 +4640,6 @@ def generate_balanced_dataset(num_records: int = None) -> Dict:
         FirstPersonLifeStageReflectionTemplate,
         FirstPersonCulturalLearningTemplate,
         FirstPersonIndustryExpertiseTemplate,
-        FirstPersonTimeAmountTemplate,
         FirstPersonThinkingProcessTemplate,
         FirstPersonRegretAnticipationTemplate,
         FirstPersonCompleteSensoryTemplate,
@@ -4601,7 +4649,10 @@ def generate_balanced_dataset(num_records: int = None) -> Dict:
         FirstPersonMemoryRecallTemplate,
         FirstPersonAchievementTemplate,
         FirstPersonMediaPreferencesTemplate,
-        FirstPersonLifeEventsTemplate
+        FirstPersonLifeEventsTemplate,
+        FirstPersonOrganizationContextTemplate,
+        FirstPersonPlatformContextTemplate,
+        FirstPersonFunctionWordTemplate
     ]
     
     third_person_templates = [
