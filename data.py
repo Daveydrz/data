@@ -27,6 +27,7 @@ class Config:
 class EntityTypes:
     # Core types
     PERSON = "PERSON"
+    PRONOUN = "PRONOUN"
     ORGANIZATION = "ORGANIZATION"
     LOCATION = "LOCATION"
     ACTIVITY = "ACTIVITY"
@@ -330,12 +331,6 @@ COMMUNITY_ROLES = ["volunteer coordinator", "neighborhood watch leader", "school
 
 PERIODS = ["during childhood", "in my teens", "college years", "early career", "when I was married", "after the divorce", "during pregnancy", "when kids were young", "midlife crisis", "empty nest years", "pre-retirement", "during illness", "after recovery", "recent years", "last decade", "formative years"]
 
-INDUSTRIES = ["technology", "healthcare", "finance", "education", "manufacturing", "retail", "entertainment", "construction", "agriculture", "transportation", "energy", "telecommunications", "hospitality", "consulting", "media"]
-
-TECHNOLOGIES = ["artificial intelligence", "machine learning", "blockchain", "cloud computing", "IoT", "virtual reality", "augmented reality", "robotics", "quantum computing", "5G", "automation", "cybersecurity"]
-
-PRODUCTS = ["smartphone app", "software platform", "physical device", "online service", "digital tool", "educational course", "fitness program", "creative work", "research paper", "business solution"]
-
 # === ADD THESE DATA POOLS ===
 
 MEMORY_TYPES = ["episodic memory", "semantic memory", "procedural memory", "emotional memory", "traumatic memory", "childhood memory", "recent memory", "vivid memory", "fragmented memory", "nostalgic memory", "suppressed memory", "triggered memory", "collective memory", "false memory", "flashbulb memory"]
@@ -354,9 +349,9 @@ PERIODS = ["during childhood", "in my teens", "college years", "early career", "
 
 INDUSTRIES = ["technology", "healthcare", "finance", "education", "manufacturing", "retail", "entertainment", "construction", "agriculture", "transportation", "energy", "telecommunications", "hospitality", "consulting", "media"]
 
-TECHNOLOGIES = ["artificial intelligence", "machine learning", "blockchain", "cloud computing", "IoT", "virtual reality", "augmented reality", "robotics", "quantum computing", "5G", "automation", "cybersecurity"]
+TECHNOLOGIES = ["artificial intelligence", "machine learning", "blockchain", "cloud computing", "IoT", "virtual reality", "augmented reality", "robotics", "quantum computing", "5G", "automation", "cybersecurity", "PyTorch", "TensorFlow", "React", "Angular", "Node.js", "Docker"]
 
-PRODUCTS = ["smartphone app", "software platform", "physical device", "online service", "digital tool", "educational course", "fitness program", "creative work", "research paper", "business solution"]
+PRODUCTS = ["smartphone app", "software platform", "physical device", "online service", "digital tool", "educational course", "fitness program", "creative work", "research paper", "business solution", "iPhone", "MacBook", "Tesla Model 3", "Samsung Galaxy", "iPad", "Surface Pro"]
 
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 # UTILITY FUNCTIONS
@@ -569,7 +564,7 @@ class FirstPersonFinalCognitiveTemplate(Template):
         text = f"I'm thinking of {topic} and considering {consideration}. I dream of {dream}, hope for {hope}, but regret {regret}. I'm looking forward to {future_event} and planning the {planning_detail}. I miss {missed_person}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "topic1": (EntityTypes.TOPIC, topic),
             "consider1": (EntityTypes.CONCEPT, consideration),
             "dream1": (EntityTypes.GOAL, dream),
@@ -606,7 +601,7 @@ class FirstPersonAllSensoryTemplate(Template):
         text = f"At {location}, I hear {sound}, see {sight}, taste something {taste}, smell {smell}, and feel {touch_sensation} against my skin."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "loc1": (EntityTypes.LOCATION, location),
             "sound1": (EntityTypes.SOUND, sound),
             "sight1": (EntityTypes.SIGHT, sight),
@@ -639,7 +634,7 @@ class FirstPersonTimeScheduleTemplate(Template):
         text = f"I repeat {activity} from {start_time} to {end_time} following a {schedule} schedule. I intend to {intent} and plan for {plan}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "activity1": (EntityTypes.ACTIVITY, activity),
             "start1": (EntityTypes.START_TIME, start_time),
             "end1": (EntityTypes.END_TIME, end_time),
@@ -671,7 +666,7 @@ class FirstPersonLocationExpertiseTraitTemplate(Template):
         text = f"I'm located at {location} where I demonstrate my {expertise} expertise and {trait} trait. I maintain a {relationship} relationship with {person}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "loc1": (EntityTypes.LOCATION, location),
             "expert1": (EntityTypes.SKILL, expertise),
             "trait1": (EntityTypes.TRAIT, trait),
@@ -701,7 +696,7 @@ class FirstPersonBeliefsOpinionsTemplate(Template):
         text = f"I believe in '{belief}' and value {value}. I think {opinion} about {topic} and have an idea for {idea}. I'm {thinking_activity} on these concepts."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "belief1": (EntityTypes.BELIEF, belief),
             "value1": (EntityTypes.VALUE, value),
             "opinion1": (EntityTypes.OPINION, opinion),
@@ -733,7 +728,7 @@ class FirstPersonHealthFinanceTemplate(Template):
         text = f"I have a {health_condition} that I manage through {health_management}. I earn from {earning_source}, spend {spending} on health, and save {savings_amount} monthly."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "condition1": (EntityTypes.CONDITION, health_condition),
             "health1": (EntityTypes.HEALTH_INFO, health_management),
             "spending1": (EntityTypes.MONEY, spending),
@@ -762,7 +757,7 @@ class FirstPersonIdentityNicknameTemplate(Template):
         text = f"My friend {friend} calls me {nickname}, and in our {group}, I'm known as {professional_name} for my contributions."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "nick1": (EntityTypes.NICKNAME, nickname),
             "friend1": (EntityTypes.PERSON, friend),
             "prof_name": (EntityTypes.NICKNAME, professional_name),
@@ -821,7 +816,7 @@ class FirstPersonRareEntityTypesTemplate(Template):
         text = f"At {time}, I allocate {amount} to my {budget} planning, following a {timeline} for my goals."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "time1": (EntityTypes.TIME, time),
             "amount1": (EntityTypes.AMOUNT, amount),
             "budget1": (EntityTypes.BUDGET, budget),
@@ -848,7 +843,7 @@ class FirstPersonCognitiveProcessTemplate(Template):
         text = f"I'm thinking of {thinking_topic} and considering {consideration}. I dream of {dream_goal} and am looking forward to {future_event} {timeline}. I regret {regret} and miss {missing_person}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "topic1": (EntityTypes.TOPIC, thinking_topic),
             "consider1": (EntityTypes.CONCEPT, consideration),
             "dream1": (EntityTypes.GOAL, dream_goal),
@@ -883,7 +878,7 @@ class FirstPersonCompleteSensoryTemplate(Template):
         text = f"At the {location}, I hear {sound}, see {sight}, taste something {taste}, smell {smell}, and feel {touch_sensation}. This triggers a {memory_trigger}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "loc1": (EntityTypes.LOCATION, location),
             "sound1": (EntityTypes.SOUND, sound),
             "sight1": (EntityTypes.SIGHT, sight),
@@ -919,7 +914,7 @@ class FirstPersonTemporalRoutineTemplate(Template):
         text = f"I repeat {routine_activity} from {start_time} to {end_time} on a {schedule} basis {frequency}. This develops my {trait} trait and {expertise_area} expertise. I intend to {intent} and plan to continue."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "activity1": (EntityTypes.ACTIVITY, routine_activity),
             "start1": (EntityTypes.START_TIME, start_time),
             "end1": (EntityTypes.END_TIME, end_time),
@@ -955,7 +950,7 @@ class FirstPersonLocationExpertiseTemplate(Template):
         text = f"I'm located at {work_location} where I apply my {expertise_area} expertise. I maintain a {relationship_type} with {colleague} while working on the {project}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "loc1": (EntityTypes.LOCATION, work_location),
             "expert1": (EntityTypes.SKILL, expertise_area),
             "rel1": (EntityTypes.RELATIONSHIP_TYPE, relationship_type),
@@ -984,7 +979,7 @@ class FirstPersonHopesPlanningTemplate(Template):
         text = f"I'm hoping for {hope} and actively planning by {planning_activity}. I want to {future_goal} {timeline} and feel {emotion} about the future."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "hope1": (EntityTypes.CONCEPT, hope),
             "plan1": (EntityTypes.ACTIVITY, planning_activity),
             "goal1": (EntityTypes.GOAL, future_goal),
@@ -1013,7 +1008,7 @@ class FirstPersonBeliefsValuesTemplate(Template):
         text = f"I believe in '{belief}' and strongly value {value}. My opinion is that {topic} is {opinion}. I've been thinking about this and {thinking_process}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "belief1": (EntityTypes.BELIEF, belief),
             "value1": (EntityTypes.VALUE, value),
             "opinion1": (EntityTypes.OPINION, opinion),
@@ -1042,7 +1037,7 @@ class FirstPersonHealthManagementTemplate(Template):
         text = f"I have a {health_condition} condition and manage it through {health_info}. I do {management_activity} {frequency} and budget {budget} for health expenses."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "condition1": (EntityTypes.CONDITION, health_condition),
             "health1": (EntityTypes.HEALTH_INFO, health_info),
             "manage1": (EntityTypes.ACTIVITY, management_activity),
@@ -1071,7 +1066,7 @@ class FirstPersonFinancialGoalsTemplate(Template):
         text = f"I save {savings_amount} monthly and earn from {earnings_source}. I budget for {budget_category} and spend wisely. My goal is {financial_goal} {timeline}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "savings1": (EntityTypes.MONEY, savings_amount),
             "earnings1": (EntityTypes.CONCEPT, earnings_source),
             "budget1": (EntityTypes.BUDGET, budget_category),
@@ -1100,7 +1095,7 @@ class FirstPersonNicknameIdentityTemplate(Template):
         text = f"My friend {friend} from our {group} calls me {nickname} because of my {reason}. This nickname has become part of my {identity_aspect}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "nick1": (EntityTypes.NICKNAME, nickname),
             "friend1": (EntityTypes.PERSON, friend),
             "group1": (EntityTypes.GROUP, group),
@@ -1130,7 +1125,7 @@ class FirstPersonIdeaInnovationTemplate(Template):
         text = f"I have an idea for {idea} using {innovation_area}. I think this is {opinion} and I'm {thinking_process} in the {development_stage}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "idea1": (EntityTypes.IDEA, idea),
             "innovation1": (EntityTypes.TECHNOLOGY, innovation_area),
             "process1": (EntityTypes.ACTIVITY, thinking_process),
@@ -1159,7 +1154,7 @@ class FirstPersonLifeStageReflectionTemplate(Template):
         text = f"Reflecting on my {life_stage} {period}, the {milestone} marked significant {growth_area}. This {memory_type} still influences me today."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "stage1": (EntityTypes.LIFE_STAGE, life_stage),
             "milestone1": (EntityTypes.EVENT, milestone),
             "growth1": (EntityTypes.PERSONAL_GROWTH, growth_area),
@@ -1189,7 +1184,7 @@ class FirstPersonCulturalLearningTemplate(Template):
         text = f"I learned {cultural_element} through {learning_method} from {teacher}, who serves as a {community_role}. This developed my {personal_growth}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "culture1": (EntityTypes.CULTURAL_ELEMENT, cultural_element),
             "method1": (EntityTypes.LEARNING_METHOD, learning_method),
             "teacher1": (EntityTypes.PERSON, teacher),
@@ -1218,7 +1213,7 @@ class FirstPersonIndustryExpertiseTemplate(Template):
         text = f"I've worked in the {industry} industry for {duration}, specializing in {technology}. I developed a {product} using my {expertise_area} expertise."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "industry1": (EntityTypes.INDUSTRY, industry),
             "tech1": (EntityTypes.TECHNOLOGY, technology),
             "product1": (EntityTypes.PRODUCT, product),
@@ -1249,7 +1244,7 @@ class FirstPersonTimeAmountTemplate(Template):
         text = f"Every day at {specific_time}, I spend {amount} on {activity} at {location}. I do this {frequency} to develop my {trait}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "time1": (EntityTypes.TIME, specific_time),
             "amount1": (EntityTypes.AMOUNT, amount),
             "activity1": (EntityTypes.ACTIVITY, activity),
@@ -1280,7 +1275,7 @@ class FirstPersonThinkingProcessTemplate(Template):
         text = f"I'm thinking of {thinking_topic} and considering {consideration}. I'm planning by {planning_activity} because I dream of {dream_goal} and hope for {hope}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "topic1": (EntityTypes.TOPIC, thinking_topic),
             "consider1": (EntityTypes.CONCEPT, consideration),
             "plan1": (EntityTypes.ACTIVITY, planning_activity),
@@ -1310,7 +1305,7 @@ class FirstPersonRegretAnticipationTemplate(Template):
         text = f"I regret {regret} from {past_period} and miss {missing_person}. However, I'm looking forward to {future_event} {timeline}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "regret1": (EntityTypes.CONCEPT, regret),
             "period1": (EntityTypes.PERIOD, past_period),
             "event1": (EntityTypes.EVENT, future_event),
@@ -1341,7 +1336,7 @@ class FirstPersonCompleteSensoryTemplate(Template):
         text = f"At {location}, I hear {sound}, see {sight}, taste something {taste}, smell {smell}, and feel {feeling}. This triggers a {memory_trigger}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "loc1": (EntityTypes.LOCATION, location),
             "sound1": (EntityTypes.SOUND, sound),
             "sight1": (EntityTypes.SIGHT, sight),
@@ -1375,7 +1370,7 @@ class FirstPersonRepeatingRoutineTemplate(Template):
         text = f"I repeat {activity} from {start_time} to {end_time} on a {schedule} basis, {frequency}. My intent is to {intent}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "activity1": (EntityTypes.ACTIVITY, activity),
             "start1": (EntityTypes.START_TIME, start_time),
             "end1": (EntityTypes.END_TIME, end_time),
@@ -1582,7 +1577,7 @@ class FirstPersonComprehensiveCoverageTemplate(Template):
         text = f"At {time}, I spend {amount} on {activity} {frequency} at {location}. I follow a {schedule} schedule to develop my {trait} trait and {expertise} expertise. I intend to {intent}, believe in '{belief}', and hope for {hope}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "time1": (EntityTypes.TIME, time),
             "amount1": (EntityTypes.AMOUNT, amount),
             "activity1": (EntityTypes.ACTIVITY, activity),
@@ -1712,7 +1707,7 @@ class FirstPersonChildhoodMemoryTemplate(Template):
         text = f"I have vivid memories of {childhood_activity} with {family_member} at {location}. {sensory_detail} always brings back {emotion} feelings from those days."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "activity1": (EntityTypes.ACTIVITY, childhood_activity),
             "family1": (EntityTypes.PERSON, family_member),
             "loc1": (EntityTypes.LOCATION, location),
@@ -1742,7 +1737,7 @@ class FirstPersonLossGriefTemplate(Template):
         text = f"I lost a dear {relationship}, {lost_person}, who I used to enjoy {shared_activity} with. I'm {grief_stage} and coping by {coping_method}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "lost1": (EntityTypes.PERSON, lost_person),
             "rel1": (EntityTypes.RELATIONSHIP_TYPE, relationship),
             "activity1": (EntityTypes.ACTIVITY, shared_activity),
@@ -1772,7 +1767,7 @@ class FirstPersonCareerMilestoneTemplate(Template):
         text = f"My {milestone} at {organization} was transformative. {mentor} helped me overcome {challenge}, which led to {growth}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "milestone1": (EntityTypes.EVENT, milestone),
             "org1": (EntityTypes.ORGANIZATION, organization),
             "mentor1": (EntityTypes.PERSON, mentor),
@@ -1801,7 +1796,7 @@ class FirstPersonFearOvercomeTemplate(Template):
         text = f"I used to be terrified of {fear}, especially in {trigger_situation}. With help from {support_person} and using {strategy}, I achieved {outcome}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "fear1": (EntityTypes.EMOTION, fear),
             "situation1": (EntityTypes.CONCEPT, trigger_situation),
             "support1": (EntityTypes.PERSON, support_person),
@@ -1830,7 +1825,7 @@ class FirstPersonCreativeAchievementTemplate(Template):
         text = f"I created a {creative_work} inspired by {inspiration} and shared it at {venue}. The {audience_reaction} gave me {personal_impact}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "work1": (EntityTypes.PROJECT, creative_work),
             "insp1": (EntityTypes.CONCEPT, inspiration),
             "venue1": (EntityTypes.LOCATION, venue),
@@ -1860,7 +1855,7 @@ class FirstPersonHealthScareTemplate(Template):
         text = f"When I experienced {health_issue}, I felt {initial_emotion}. {support_system} and {medical_professional} helped me implement {lifestyle_change}. Now I'm {current_state}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "health1": (EntityTypes.HEALTH_INFO, health_issue),
             "emotion1": (EntityTypes.EMOTION, initial_emotion),
             "support1": (EntityTypes.PERSON, support_system),
@@ -1891,7 +1886,7 @@ class FirstPersonFailureLessonTemplate(Template):
         text = f"My {failure_event} left me {initial_reaction}. After {reflection_period}, I learned about {lesson_learned} and now I'm {current_perspective}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "failure1": (EntityTypes.EVENT, failure_event),
             "reaction1": (EntityTypes.EMOTION, initial_reaction),
             "reflection1": (EntityTypes.ACTIVITY, reflection_period),
@@ -1920,7 +1915,7 @@ class FirstPersonMentorshipMemoryTemplate(Template):
         text = f"My {mentor_role}, {mentor_name}, once told me to '{key_advice}'. I applied this during a {situation_applied} and it {lasting_impact}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "role1": (EntityTypes.ROLE, mentor_role),
             "mentor1": (EntityTypes.PERSON, mentor_name),
             "advice1": (EntityTypes.CONCEPT, key_advice),
@@ -1950,7 +1945,7 @@ class FirstPersonNicknameStoryTemplate(Template):
         text = f"My friends call me {nickname} because of {story_reason}. {friend} from my {group} started it and I feel {emotion} about it."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "nick1": (EntityTypes.NICKNAME, nickname),
             "friend1": (EntityTypes.PERSON, friend),
             "reason1": (EntityTypes.CONCEPT, story_reason),
@@ -1979,7 +1974,7 @@ class FirstPersonBorrowLendTemplate(Template):
         text = f"I borrowed a {item} from {friend} for {duration} because of an {reason}. It {result} and I'm grateful."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "item1": (EntityTypes.OBJECT, item),
             "friend1": (EntityTypes.PERSON, friend),
             "dur1": (EntityTypes.DURATION, duration),
@@ -2008,7 +2003,7 @@ class FirstPersonFamilyTraditionTemplate(Template):
         text = f"I have a family tradition of {tradition} with {family_member} at {location}. We've been doing this for {duration} and it fills me with {emotion}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "family1": (EntityTypes.PERSON, family_member),
             "trad1": (EntityTypes.EVENT, tradition),
             "loc1": (EntityTypes.LOCATION, location),
@@ -2038,7 +2033,7 @@ class FirstPersonScheduleStressTemplate(Template):
         text = f"I have a {schedule} schedule from {start_time} to {end_time} for {activity}. It causes {condition} but my intent is to {intent}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "start1": (EntityTypes.START_TIME, start_time),
             "end1": (EntityTypes.END_TIME, end_time),
             "act1": (EntityTypes.ACTIVITY, activity),
@@ -2069,7 +2064,7 @@ class FirstPersonValueConflictTemplate(Template):
         text = f"I value both {value1} and {value2}, but in this {situation} I feel {emotion}. I'm working toward {resolution}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "val1": (EntityTypes.VALUE, value1),
             "val2": (EntityTypes.VALUE, value2),
             "sit1": (EntityTypes.CONCEPT, situation),
@@ -2098,7 +2093,7 @@ class FirstPersonSensoryOverloadTemplate(Template):
         text = f"At the {location}, the {sound} and {sight} create {sensation} that overwhelms me. I cope by {coping}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "sound1": (EntityTypes.SOUND, sound),
             "sight1": (EntityTypes.SIGHT, sight),
             "loc1": (EntityTypes.LOCATION, location),
@@ -2127,7 +2122,7 @@ class FirstPersonMoneyGoalTemplate(Template):
         text = f"I want to save {amount} for {goal} by {timeline}. My strategy is {strategy} but I worry about {worry}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "money1": (EntityTypes.MONEY, amount),
             "goal1": (EntityTypes.GOAL, goal),
             "time1": (EntityTypes.TIMELINE, timeline),
@@ -2156,7 +2151,7 @@ class FirstPersonIdeaDevelopmentTemplate(Template):
         text = f"I have an idea for {idea} related to {topic}. I'm collaborating with {collaborator} in the {stage} stage and feel {emotion} about it."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "idea1": (EntityTypes.IDEA, idea),
             "topic1": (EntityTypes.TOPIC, topic),
             "collab1": (EntityTypes.PERSON, collaborator),
@@ -2184,7 +2179,7 @@ class FirstPersonBeliefChallengeTemplate(Template):
         text = f"My belief in {belief} was challenged by {challenge}. I felt {emotion} and I'm responding by {response}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "belief1": (EntityTypes.BELIEF, belief),
             "chall1": (EntityTypes.CONCEPT, challenge),
             "e1": (EntityTypes.EMOTION, emotion),
@@ -2212,7 +2207,7 @@ class FirstPersonTasteMemoryTemplate(Template):
         text = f"I remember the {taste} {food} from {location}. The {smell} smell always brings back {emotion} and makes me nostalgic."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "taste1": (EntityTypes.TASTE, taste),
             "food1": (EntityTypes.FOOD, food),
             "loc1": (EntityTypes.LOCATION, location),
@@ -2241,7 +2236,7 @@ class FirstPersonOpinionChangeTemplate(Template):
         text = f"I used to think {topic} was {old_opinion}, but now I believe it's {new_opinion}. This change was caused by {cause} and I feel {emotion}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "topic1": (EntityTypes.TOPIC, topic),
             "old_op": (EntityTypes.OPINION, old_opinion),
             "new_op": (EntityTypes.OPINION, new_opinion),
@@ -2270,7 +2265,7 @@ class FirstPersonAttributeDevelopmentTemplate(Template):
         text = f"I've been developing my {attribute} qualities through {activity} with {mentor} at {organization}. I've made {progress}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "attr1": (EntityTypes.ATTRIBUTE, attribute),
             "act1": (EntityTypes.ACTIVITY, activity),
             "mentor1": (EntityTypes.PERSON, mentor),
@@ -2298,7 +2293,7 @@ class FirstPersonWeatherMoodTemplate(Template):
         text = f"I love {weather} weather because it makes me feel {emotion}. It's perfect for {activity} and matches my {preference}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "w1": (EntityTypes.WEATHER, weather),
             "e1": (EntityTypes.EMOTION, emotion),
             "act1": (EntityTypes.ACTIVITY, activity),
@@ -2326,7 +2321,7 @@ class FirstPersonTransportationMemoryTemplate(Template):
         text = f"I remember taking the {transport} to {location} for {duration} on {date}. I felt {emotion} during that journey."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "trans1": (EntityTypes.VEHICLE, transport),
             "loc1": (EntityTypes.GEOPOLITICAL_ENTITY, location),
             "dur1": (EntityTypes.DURATION, duration),
@@ -2355,7 +2350,7 @@ class FirstPersonRoomPreferenceTemplate(Template):
         text = f"I prefer working in my {room} because it's {attribute}. I use my {object_item} there for {activity} and it gives me {feeling}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "room1": (EntityTypes.ROOM, room),
             "act1": (EntityTypes.ACTIVITY, activity),
             "obj1": (EntityTypes.OBJECT, object_item),
@@ -2385,7 +2380,7 @@ class FirstPersonMediaConsumptionTemplate(Template):
         text = f"I've been watching {media} on {platform} about {topic}. I really enjoy {genre} content and feel {sentiment} about it."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "media1": (EntityTypes.MEDIA, media),
             "plat1": (EntityTypes.PLATFORM, platform),
             "genre1": (EntityTypes.GENRE, genre),
@@ -2414,7 +2409,7 @@ class FirstPersonBusinessInteractionTemplate(Template):
         text = f"I visit this {business} {frequency} and spend about {money}. They provide {service} which makes me feel {emotion}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "biz1": (EntityTypes.BUSINESS, business),
             "freq1": (EntityTypes.FREQUENCY, frequency),
             "money1": (EntityTypes.MONEY, money),
@@ -2443,7 +2438,7 @@ class FirstPersonEquipmentOwnershipTemplate(Template):
         text = f"I own a {brand} {equipment} that cost me {price}. It's very {attribute} and I use it for {purpose}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "equip1": (EntityTypes.EQUIPMENT, equipment),
             "brand1": (EntityTypes.ORGANIZATION, brand),
             "price1": (EntityTypes.MONEY, price),
@@ -2472,7 +2467,7 @@ class FirstPersonSocialAnxietyTemplate(Template):
         text = f"I was feeling {emotion} about the {social_situation} but used {coping_strategy} to cope. {friend} was there and it {outcome}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "sit1": (EntityTypes.EVENT, social_situation),
             "e1": (EntityTypes.EMOTION, emotion),
             "cope1": (EntityTypes.ACTIVITY, coping_strategy),
@@ -2501,7 +2496,7 @@ class FirstPersonSkillDevelopmentProgressTemplate(Template):
         text = f"I've been learning {skill} for {duration} and made {progress}. My goal is to {goal} and I feel {confidence}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "skill1": (EntityTypes.SKILL, skill),
             "dur1": (EntityTypes.DURATION, duration),
             "prog1": (EntityTypes.CONCEPT, progress),
@@ -2530,7 +2525,7 @@ class FirstPersonExpandedTravelTemplate(Template):
         text = f"I'm thinking of traveling to {location} for {duration} on {date}. I feel {emotion} and have a {sentiment} sentiment about this trip."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "loc1": (EntityTypes.GEOPOLITICAL_ENTITY, location),
             "dur1": (EntityTypes.DURATION, duration),
             "date1": (EntityTypes.DATE, date),
@@ -2560,7 +2555,7 @@ class FirstPersonObjectOwnershipTemplate(Template):
         text = f"I borrowed a {obj} from {friend_name} for {duration}. It's quite {attribute} and I'm using it for {purpose}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "obj1": (EntityTypes.OBJECT, obj),
             "friend1": (EntityTypes.PERSON, friend_name),
             "dur1": (EntityTypes.DURATION, duration),
@@ -2590,7 +2585,7 @@ class FirstPersonHealthGoalTemplate(Template):
         text = f"I want to improve my {health_info} to {goal}. I feel {emotion} about this and my intent is to {intent}. This is all about {topic}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "health1": (EntityTypes.HEALTH_INFO, health_info),
             "goal1": (EntityTypes.GOAL, goal),
             "e1": (EntityTypes.EMOTION, emotion),
@@ -2620,7 +2615,7 @@ class FirstPersonWorkRoleTemplate(Template):
         text = f"I have the role of {role} at {organization}. I'm {attribute} and use my {skill} skills on this {project}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "role1": (EntityTypes.ROLE, role),
             "org1": (EntityTypes.ORGANIZATION, organization),
             "skill1": (EntityTypes.SKILL, skill),
@@ -2651,7 +2646,7 @@ class FirstPersonIndustryExpertiseTemplate(Template):
         text = f"I've worked in the {industry} industry for {duration}, specializing in {technology}. I developed a {product} using my {expertise_area} expertise."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "industry1": (EntityTypes.INDUSTRY, industry),
             "tech1": (EntityTypes.TECHNOLOGY, technology),
             "product1": (EntityTypes.PRODUCT, product),
@@ -2682,7 +2677,7 @@ class FirstPersonTimeAmountTemplate(Template):
         text = f"Every day at {specific_time}, I spend {amount} on {activity} at {location}. I do this {frequency} to develop my {trait}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "time1": (EntityTypes.TIME, specific_time),
             "amount1": (EntityTypes.AMOUNT, amount),
             "activity1": (EntityTypes.ACTIVITY, activity),
@@ -2715,7 +2710,7 @@ class FirstPersonThinkingProcessTemplate(Template):
         text = f"I'm thinking of {thinking_topic} and considering {consideration}. I'm planning by {planning_activity} because I dream of {dream_goal} and hope for {hope}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "topic1": (EntityTypes.TOPIC, thinking_topic),
             "consider1": (EntityTypes.CONCEPT, consideration),
             "plan1": (EntityTypes.ACTIVITY, planning_activity),
@@ -2745,7 +2740,7 @@ class FirstPersonRegretAnticipationTemplate(Template):
         text = f"I regret {regret} from {past_period} and miss {missing_person}. However, I'm looking forward to {future_event} {timeline}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "regret1": (EntityTypes.CONCEPT, regret),
             "period1": (EntityTypes.PERIOD, past_period),
             "event1": (EntityTypes.EVENT, future_event),
@@ -2778,7 +2773,7 @@ class FirstPersonCompleteSensoryTemplate(Template):
         text = f"At {location}, I hear {sound}, see {sight}, taste something {taste}, smell {smell}, and feel {feeling}. This triggers a {memory_trigger}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "loc1": (EntityTypes.LOCATION, location),
             "sound1": (EntityTypes.SOUND, sound),
             "sight1": (EntityTypes.SIGHT, sight),
@@ -2814,7 +2809,7 @@ class FirstPersonRepeatingRoutineTemplate(Template):
         text = f"I repeat {activity} from {start_time} to {end_time} on a {schedule} basis, {frequency}. My intent is to {intent}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "activity1": (EntityTypes.ACTIVITY, activity),
             "start1": (EntityTypes.START_TIME, start_time),
             "end1": (EntityTypes.END_TIME, end_time),
@@ -2939,7 +2934,7 @@ class FirstPersonComplexMemoryTemplate(Template):
         text = f"I process a {memory_type} from {period} through {cultural_element} using {learning_method}. This journey toward {personal_growth} shaped my {community_role} identity."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "memory1": (EntityTypes.MEMORY_TYPE, memory_type),
             "period1": (EntityTypes.PERIOD, period),
             "culture1": (EntityTypes.CULTURAL_ELEMENT, cultural_element),
@@ -2972,7 +2967,7 @@ class FirstPersonMemoryRecallTemplate(Template):
         text = f"A {trigger} during {recall_context} triggered my {memory_type} from my {life_stage}. This recall led to {personal_growth}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "memory1": (EntityTypes.MEMORY_TYPE, memory_type),
             "trigger1": (EntityTypes.SENSATION, trigger),
             "context1": (EntityTypes.CONCEPT, recall_context),
@@ -3859,7 +3854,7 @@ class FirstPersonAchievementTemplate(Template):
         text = f"I achieved {achievement} in my {goal} after months of hard work."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "goal1": (EntityTypes.GOAL, goal),
             "achieve1": (EntityTypes.CONCEPT, achievement)
         }
@@ -3883,7 +3878,7 @@ class FirstPersonMediaPreferencesTemplate(Template):
         text = f"I enjoy {hobby}, like reading {book}, and prefer {preference}. I also listen to {music} while relaxing."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "hobby1": (EntityTypes.HOBBY, hobby),
             "book1": (EntityTypes.MEDIA, book),
             "music1": (EntityTypes.MEDIA, music),
@@ -3911,7 +3906,7 @@ class FirstPersonLifeEventsTemplate(Template):
         text = f"The {event} is scheduled for {date}. I live in {city} and maintain a strong {relationship}."
         
         entities = {
-            "user": (EntityTypes.PERSON, "I"),
+            "user": (EntityTypes.PRONOUN, "I"),
             "event1": (EntityTypes.EVENT, event),
             "date1": (EntityTypes.DATE, date),
             "city1": (EntityTypes.LOCATION, city),
