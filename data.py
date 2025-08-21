@@ -808,7 +808,7 @@ class ThirdPersonPetTemplate(Template):
 class FirstPersonRareEntityTypesTemplate(Template):
     def generate(self):
         # Target any potentially missing entity types
-        amount = random.choice(["2.5 hours", "45 minutes", "3 hours daily"])
+        amount = random.choice(["$500", "$1,200", "$2,000", "15%", "25 units", "100 items"])
         time = random.choice(["7:30 AM", "2:15 PM", "9:45 PM"])
         budget = random.choice(["monthly budget", "annual budget", "project budget"])
         timeline = random.choice(["6-month timeline", "annual timeline", "5-year timeline"])
@@ -818,16 +818,101 @@ class FirstPersonRareEntityTypesTemplate(Template):
         entities = {
             "user": (EntityTypes.PRONOUN, "I"),
             "time1": (EntityTypes.TIME, time),
-            "amount1": (EntityTypes.DURATION, amount),
+            "amount1": (EntityTypes.AMOUNT, amount),
             "budget1": (EntityTypes.BUDGET, budget),
             "timeline1": (EntityTypes.TIMELINE, timeline)
         }
         
         relations = [
             (RelationTypes.STARTS_AT, "budget1", "time1"),
-            (RelationTypes.FOR_DURATION, "budget1", "amount1"),
+            (RelationTypes.HAS_OBJECT, "budget1", "amount1"),
             (RelationTypes.BUDGETS_FOR, "user", "budget1"),
             (RelationTypes.HAS_DEADLINE, "budget1", "timeline1")
+        ]
+        
+        return text, entities, relations
+
+class FirstPersonIndustryKnowledgeTemplate(Template):
+    def generate(self):
+        industry = random.choice(["healthcare", "finance", "technology", "education", "manufacturing", "retail", "hospitality", "energy", "transportation", "construction"])
+        skill = random.choice(SKILLS)
+        experience = random.choice(["5 years", "3 years", "decade", "several years"])
+        trend = random.choice(["automation", "digitization", "sustainability", "remote work", "artificial intelligence"])
+        expertise_area = random.choice(["market analysis", "process optimization", "regulatory compliance", "innovation strategy"])
+        
+        text = f"I have {experience} of experience in the {industry} industry. My {skill} skills help me understand {trend} trends and develop {expertise_area} expertise."
+        
+        entities = {
+            "user": (EntityTypes.PRONOUN, "I"),
+            "exp1": (EntityTypes.DURATION, experience),
+            "ind1": (EntityTypes.INDUSTRY, industry),
+            "skill1": (EntityTypes.SKILL, skill),
+            "trend1": (EntityTypes.CONCEPT, trend),
+            "expert1": (EntityTypes.CONCEPT, expertise_area)
+        }
+        
+        relations = [
+            (RelationTypes.HAS_SKILL, "user", "skill1"),
+            (RelationTypes.FOR_DURATION, "user", "exp1"),
+            (RelationTypes.ABOUT_TOPIC, "skill1", "ind1"),
+            (RelationTypes.ABOUT_TOPIC, "trend1", "ind1"),
+            (RelationTypes.HAS_EXPERTISE, "user", "expert1")
+        ]
+        
+        return text, entities, relations
+
+class FirstPersonQuantityAmountTemplate(Template):
+    def generate(self):
+        activity = random.choice(["grocery shopping", "meal planning", "project budgeting", "resource allocation"])
+        amount = random.choice(["$150", "$75", "20 items", "5 packages", "dozen units", "50%", "25 pounds"])
+        frequency = random.choice(FREQUENCY_DETAILED)
+        location = random.choice(LOCATIONS)
+        purpose = random.choice(["family needs", "personal goals", "project requirements", "efficiency improvement"])
+        
+        text = f"I do {activity} {frequency} at {location}, typically purchasing {amount} for {purpose}."
+        
+        entities = {
+            "user": (EntityTypes.PRONOUN, "I"),
+            "act1": (EntityTypes.ACTIVITY, activity),
+            "freq1": (EntityTypes.FREQUENCY, frequency),
+            "loc1": (EntityTypes.LOCATION, location),
+            "amount1": (EntityTypes.AMOUNT, amount),
+            "purp1": (EntityTypes.CONCEPT, purpose)
+        }
+        
+        relations = [
+            (RelationTypes.DOES_ACTIVITY, "user", "act1"),
+            (RelationTypes.HAS_FREQUENCY, "act1", "freq1"),
+            (RelationTypes.AT_LOCATION, "act1", "loc1"),
+            (RelationTypes.HAS_OBJECT, "act1", "amount1"),
+            (RelationTypes.USED_FOR, "act1", "purp1")
+        ]
+        
+        return text, entities, relations
+
+class ThirdPersonIndustryExpertiseTemplate(Template):
+    def generate(self):
+        person = random.choice(PEOPLE_NAMES)
+        industry = random.choice(["automotive", "aerospace", "pharmaceuticals", "telecommunications", "banking", "insurance", "media", "consulting", "agriculture", "mining"])
+        role = random.choice(["analyst", "consultant", "specialist", "manager", "director"])
+        innovation = random.choice(["breakthrough technology", "process improvement", "market expansion", "cost optimization"])
+        impact = random.choice(["industry recognition", "market leadership", "operational efficiency", "customer satisfaction"])
+        
+        text = f"{person} works as a {role} in the {industry} industry. They developed {innovation} that led to {impact}."
+        
+        entities = {
+            "p1": (EntityTypes.PERSON, person),
+            "role1": (EntityTypes.ROLE, role),
+            "ind1": (EntityTypes.INDUSTRY, industry),
+            "innov1": (EntityTypes.CONCEPT, innovation),
+            "imp1": (EntityTypes.CONCEPT, impact)
+        }
+        
+        relations = [
+            (RelationTypes.HAS_ROLE, "p1", "role1"),
+            (RelationTypes.ABOUT_TOPIC, "role1", "ind1"),
+            (RelationTypes.ACHIEVED, "p1", "innov1"),
+            (RelationTypes.RESULTS_IN, "innov1", "imp1")
         ]
         
         return text, entities, relations
@@ -4006,7 +4091,9 @@ def generate_dataset(num_records: int = None) -> Dict:
         FirstPersonLifeEventsTemplate,
         FirstPersonOrganizationContextTemplate,
         FirstPersonPlatformContextTemplate,
-        FirstPersonFunctionWordTemplate
+        FirstPersonFunctionWordTemplate,
+        FirstPersonIndustryKnowledgeTemplate,
+        FirstPersonQuantityAmountTemplate
     ]
     
     third_person_templates = [
@@ -4048,7 +4135,8 @@ def generate_dataset(num_records: int = None) -> Dict:
         ThirdPersonTemporalExpertiseTemplate,
         ThirdPersonRelationshipMaintainerTemplate,
         ThirdPersonLearningMentorshipTemplate,
-        ThirdPersonEmotionalJourneyTemplate
+        ThirdPersonEmotionalJourneyTemplate,
+        ThirdPersonIndustryExpertiseTemplate
     ]
     
     # Calculate target counts
@@ -4622,7 +4710,9 @@ def generate_balanced_dataset(num_records: int = None) -> Dict:
         FirstPersonLifeEventsTemplate,
         FirstPersonOrganizationContextTemplate,
         FirstPersonPlatformContextTemplate,
-        FirstPersonFunctionWordTemplate
+        FirstPersonFunctionWordTemplate,
+        FirstPersonIndustryKnowledgeTemplate,
+        FirstPersonQuantityAmountTemplate
     ]
     
     third_person_templates = [
@@ -4665,7 +4755,8 @@ def generate_balanced_dataset(num_records: int = None) -> Dict:
         ThirdPersonTimeManagementTemplate,
         ThirdPersonBeliefInfluenceTemplate,
         ThirdPersonLearningMentorshipTemplate,
-        ThirdPersonEmotionalJourneyTemplate
+        ThirdPersonEmotionalJourneyTemplate,
+        ThirdPersonIndustryExpertiseTemplate
     ]
     
     # Initialize balanced template manager
