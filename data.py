@@ -5749,24 +5749,48 @@ def print_balanced_statistics(stats: Dict):
             print(f"  - {reason}: {count}")
 
 def main():
-    """Main execution function with support for both generation methods."""
+    """Main execution function with support for multiple generation methods."""
     import sys
     
     # Check for command line arguments to choose generation method
     use_balanced_generation = False
+    use_ultra_balanced = False
     if len(sys.argv) > 1:
-        if sys.argv[1].lower() in ['balanced', 'balance', 'enhanced', 'b']:
+        if sys.argv[1].lower() in ['ultra', 'ultra-balanced', 'u']:
+            use_ultra_balanced = True
+        elif sys.argv[1].lower() in ['balanced', 'balance', 'enhanced', 'b']:
             use_balanced_generation = True
         elif sys.argv[1].lower() in ['original', 'standard', 'o']:
             use_balanced_generation = False
         else:
-            print("Usage: python data.py [balanced|original]")
+            print("Usage: python data.py [ultra|balanced|original]")
+            print("  ultra/u: Use ultra-balanced generation for 90%+ balance")
             print("  balanced/b/enhanced: Use enhanced balanced generation")
             print("  original/o/standard: Use original generation (default)")
             return
     
     try:
-        if use_balanced_generation:
+        if use_ultra_balanced:
+            print("🎯 Using Ultra-Balanced Generation Method")
+            result = generate_ultra_balanced_dataset()
+            
+            if result["dataset"]:
+                filename = save_dataset(result)
+                stats = result["statistics"]
+                
+                print(f"\nDataset saved to: {filename}")
+                print(f"\n🎯 Ultra-Balanced Generation Results:")
+                print(f"   - Generated: {stats['total_generated']}")
+                print(f"   - Success Rate: {stats['success_rate']}")
+                print(f"   - Entity Balance: {stats['balance_scores']['entity_balance']:.1f}%")
+                print(f"   - Relation Balance: {stats['balance_scores']['relation_balance']:.1f}%")
+                print(f"   - Overall Balance: {stats['balance_scores']['overall_balance']:.1f}%")
+                print(f"   - Entity Coverage: {stats['entity_coverage']}")
+                print(f"   - Relation Coverage: {stats['relation_coverage']}")
+            else:
+                print("ERROR: No records were successfully generated with ultra-balanced method!")
+        
+        elif use_balanced_generation:
             print("🎯 Using Enhanced Balanced Generation Method")
             result = generate_balanced_dataset()
             
