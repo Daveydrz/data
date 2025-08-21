@@ -3904,6 +3904,80 @@ class ThirdPersonBeliefInfluenceTemplate(Template):
         return text, entities, relations
 
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+# MISSING ENTITY COVERAGE TEMPLATES
+# --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+class FirstPersonRelationshipTemplate(Template):
+    def generate(self):
+        relationship_name = random.choice([
+            "my friendship with Sarah", "our family bond", "the partnership with my mentor", 
+            "my collaboration with the team", "the connection with my neighbor"
+        ])
+        activity = random.choice(["strengthening", "nurturing", "maintaining", "developing"])
+        emotion = random.choice(["grateful", "appreciative", "connected", "supported"])
+        value = random.choice(["trust", "loyalty", "understanding", "mutual respect"])
+        time = random.choice(START_TIMES)
+        frequency = random.choice(FREQUENCY_DETAILED)
+        
+        text = f"At {time}, I focus on {activity} {relationship_name} {frequency}. I feel {emotion} for this connection because it's built on {value}."
+        
+        entities = {
+            "user": (EntityTypes.PERSON, "I"),
+            "rel1": (EntityTypes.RELATIONSHIP, relationship_name),
+            "act1": (EntityTypes.ACTIVITY, activity),
+            "emotion1": (EntityTypes.EMOTION, emotion),
+            "value1": (EntityTypes.VALUE, value),
+            "time1": (EntityTypes.TIME, time),
+            "freq1": (EntityTypes.FREQUENCY, frequency)
+        }
+        
+        relations = [
+            (RelationTypes.MAINTAINS_RELATIONSHIP, "user", "rel1"),
+            (RelationTypes.DOES_ACTIVITY, "user", "act1"),
+            (RelationTypes.FEELS_EMOTION, "user", "emotion1"),
+            (RelationTypes.VALUES, "user", "value1"),
+            (RelationTypes.STARTS_AT, "act1", "time1"),
+            (RelationTypes.HAS_FREQUENCY, "act1", "freq1"),
+            (RelationTypes.CAUSED_BY, "emotion1", "rel1")
+        ]
+        
+        return text, entities, relations
+
+class ThirdPersonRelationshipTemplate(Template):
+    def generate(self):
+        person = random.choice(PEOPLE_NAMES)
+        relationship_name = random.choice([
+            "their marriage", "the business partnership", "their mentoring relationship", 
+            "the friendship bond", "their family connection"
+        ])
+        quality = random.choice(["strong", "meaningful", "supportive", "enduring"])
+        duration = random.choice(["for many years", "since childhood", "for over a decade", "throughout their careers"])
+        activity = random.choice(["regular communication", "shared experiences", "mutual support", "collaborative projects"])
+        outcome = random.choice(["personal growth", "professional success", "emotional stability", "life satisfaction"])
+        
+        text = f"{person} has maintained {relationship_name} {duration}. This {quality} connection involves {activity} and has led to {outcome}."
+        
+        entities = {
+            "p1": (EntityTypes.PERSON, person),
+            "rel1": (EntityTypes.RELATIONSHIP, relationship_name),
+            "qual1": (EntityTypes.ATTRIBUTE, quality),
+            "dur1": (EntityTypes.DURATION, duration),
+            "act1": (EntityTypes.ACTIVITY, activity),
+            "out1": (EntityTypes.CONCEPT, outcome)
+        }
+        
+        relations = [
+            (RelationTypes.MAINTAINS_RELATIONSHIP, "p1", "rel1"),
+            (RelationTypes.HAS_ATTRIBUTE, "rel1", "qual1"),
+            (RelationTypes.FOR_DURATION, "rel1", "dur1"),
+            (RelationTypes.DOES_ACTIVITY, "p1", "act1"),
+            (RelationTypes.RESULTS_IN, "rel1", "out1"),
+            (RelationTypes.USED_FOR, "act1", "rel1")
+        ]
+        
+        return text, entities, relations
+
+# --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 # MAIN GENERATION FUNCTION
 # --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
 
@@ -3973,7 +4047,8 @@ def generate_dataset(num_records: int = None) -> Dict:
         FirstPersonFinancialGoalsTemplate,
         FirstPersonNicknameIdentityTemplate,
         FirstPersonIdeaInnovationTemplate,
-        FirstPersonComprehensiveCoverageTemplate
+        FirstPersonComprehensiveCoverageTemplate,
+        FirstPersonRelationshipTemplate
     ]
     
     third_person_templates = [
@@ -4013,7 +4088,8 @@ def generate_dataset(num_records: int = None) -> Dict:
         ThirdPersonPetCareTemplate,
         ThirdPersonAdvancedCognitiveTemplate,
         ThirdPersonTemporalExpertiseTemplate,
-        ThirdPersonRelationshipMaintainerTemplate
+        ThirdPersonRelationshipMaintainerTemplate,
+        ThirdPersonRelationshipTemplate
     ]
     
     # Calculate target counts
