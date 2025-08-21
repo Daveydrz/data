@@ -1169,7 +1169,6 @@ class FirstPersonLifeStageReflectionTemplate(Template):
             (RelationTypes.EXPERIENCES, "user", "milestone1"),
             (RelationTypes.ON_DATE, "milestone1", "period1"),
             (RelationTypes.RESULTS_IN, "milestone1", "growth1"),
-            (RelationTypes.IS_TYPE, "milestone1", "memory1"),
             (RelationTypes.REMEMBERS, "user", "memory1")
         ]
         
@@ -1206,17 +1205,17 @@ class FirstPersonCulturalLearningTemplate(Template):
 
 class FirstPersonIndustryExpertiseTemplate(Template):
     def generate(self):
-        industry = random.choice(["technology", "healthcare", "finance", "education", "manufacturing"])
+        organization = random.choice(["Toyota", "Apple", "Microsoft", "Google", "Tesla", "MIT", "AWS", "Facebook"])
         technology = random.choice(["artificial intelligence", "blockchain", "cloud computing", "automation", "data analytics"])
         product = random.choice(["software platform", "mobile app", "web service", "automation tool", "analytics dashboard"])
         expertise_area = random.choice(SKILLS)
         duration = random.choice(DURATIONS)
         
-        text = f"I've worked in the {industry} industry for {duration}, specializing in {technology}. I developed a {product} using my {expertise_area} expertise."
+        text = f"I've worked at {organization} for {duration}, specializing in {technology}. I developed a {product} using my {expertise_area} expertise."
         
         entities = {
             "user": (EntityTypes.PRONOUN, "I"),
-            "industry1": (EntityTypes.INDUSTRY, industry),
+            "org1": (EntityTypes.ORGANIZATION, organization),
             "tech1": (EntityTypes.TECHNOLOGY, technology),
             "product1": (EntityTypes.PRODUCT, product),
             "expert1": (EntityTypes.SKILL, expertise_area),
@@ -1224,8 +1223,8 @@ class FirstPersonIndustryExpertiseTemplate(Template):
         }
         
         relations = [
-            (RelationTypes.WORKS_FOR, "user", "industry1"),
-            (RelationTypes.FOR_DURATION, "industry1", "dur1"),
+            (RelationTypes.WORKS_FOR, "user", "org1"),
+            (RelationTypes.FOR_DURATION, "org1", "dur1"),
             (RelationTypes.HAS_EXPERTISE, "user", "tech1"),
             (RelationTypes.ORGANIZES, "user", "product1"),
             (RelationTypes.HAS_SKILL, "user", "expert1"),
@@ -1613,17 +1612,17 @@ class FirstPersonComprehensiveCoverageTemplate(Template):
 class ThirdPersonIndustryInnovationTemplate(Template):
     def generate(self):
         person = random.choice(PEOPLE_NAMES)
-        industry = random.choice(["technology", "healthcare", "finance", "education"])
+        organization = random.choice(["Toyota", "Apple", "Microsoft", "Google", "Tesla", "MIT", "AWS"])
         technology = random.choice(["machine learning", "robotics", "biotech", "fintech"])
         product = random.choice(["revolutionary app", "medical device", "AI system", "blockchain solution"])
         learning_method = random.choice(["research", "experimentation", "collaboration", "iteration"])
         growth = random.choice(["industry recognition", "patent approval", "market success", "user adoption"])
         
-        text = f"{person} works in the {industry} industry, developing {technology} to create a {product}. Through {learning_method}, they achieved {growth}."
+        text = f"{person} works for {organization}, developing {technology} to create a {product}. Through {learning_method}, they achieved {growth}."
         
         entities = {
             "p1": (EntityTypes.PERSON, person),
-            "ind1": (EntityTypes.INDUSTRY, industry),
+            "org1": (EntityTypes.ORGANIZATION, organization),
             "tech1": (EntityTypes.TECHNOLOGY, technology),
             "prod1": (EntityTypes.PRODUCT, product),
             "method1": (EntityTypes.LEARNING_METHOD, learning_method),
@@ -1631,7 +1630,7 @@ class ThirdPersonIndustryInnovationTemplate(Template):
         }
         
         relations = [
-            (RelationTypes.WORKS_FOR, "p1", "ind1"),
+            (RelationTypes.WORKS_FOR, "p1", "org1"),
             (RelationTypes.HAS_EXPERTISE, "p1", "tech1"),
             (RelationTypes.ORGANIZES, "p1", "prod1"),
             (RelationTypes.USES, "p1", "method1"),
@@ -2636,37 +2635,6 @@ class FirstPersonWorkRoleTemplate(Template):
         
         return text, entities, relations
 
-
-class FirstPersonIndustryExpertiseTemplate(Template):
-    def generate(self):
-        industry = random.choice(["technology", "healthcare", "finance", "education", "manufacturing"])
-        technology = random.choice(["artificial intelligence", "blockchain", "cloud computing", "automation", "data analytics"])
-        product = random.choice(["software platform", "mobile app", "web service", "automation tool", "analytics dashboard"])
-        expertise_area = random.choice(SKILLS)
-        duration = random.choice(DURATIONS)
-        
-        text = f"I've worked in the {industry} industry for {duration}, specializing in {technology}. I developed a {product} using my {expertise_area} expertise."
-        
-        entities = {
-            "user": (EntityTypes.PRONOUN, "I"),
-            "industry1": (EntityTypes.INDUSTRY, industry),
-            "tech1": (EntityTypes.TECHNOLOGY, technology),
-            "product1": (EntityTypes.PRODUCT, product),
-            "expert1": (EntityTypes.SKILL, expertise_area),
-            "dur1": (EntityTypes.DURATION, duration)
-        }
-        
-        relations = [
-            (RelationTypes.WORKS_FOR, "user", "industry1"),
-            (RelationTypes.FOR_DURATION, "industry1", "dur1"),
-            (RelationTypes.HAS_EXPERTISE, "user", "tech1"),
-            (RelationTypes.ORGANIZES, "user", "product1"),
-            (RelationTypes.HAS_SKILL, "user", "expert1"),
-            (RelationTypes.USES, "user", "tech1")
-        ]
-        
-        return text, entities, relations
-
 # === MISSING COGNITIVE RELATION TEMPLATES ===
 
 class FirstPersonThinkingProcessTemplate(Template):
@@ -2801,66 +2769,6 @@ class FirstPersonRepeatingRoutineTemplate(Template):
         return text, entities, relations
 
 # === THIRD PERSON TEMPLATES FOR MISSING COVERAGE ===
-
-class ThirdPersonIndustryInnovationTemplate(Template):
-    def generate(self):
-        person = random.choice(PEOPLE_NAMES)
-        industry = random.choice(["technology", "healthcare", "finance", "education"])
-        technology = random.choice(["machine learning", "robotics", "biotech", "fintech"])
-        product = random.choice(["revolutionary app", "medical device", "AI system", "blockchain solution"])
-        learning_method = random.choice(["research", "experimentation", "collaboration", "iteration"])
-        growth = random.choice(["industry recognition", "patent approval", "market success", "user adoption"])
-        
-        text = f"{person} works in the {industry} industry, developing {technology} to create a {product}. Through {learning_method}, they achieved {growth}."
-        
-        entities = {
-            "p1": (EntityTypes.PERSON, person),
-            "ind1": (EntityTypes.INDUSTRY, industry),
-            "tech1": (EntityTypes.TECHNOLOGY, technology),
-            "prod1": (EntityTypes.PRODUCT, product),
-            "method1": (EntityTypes.LEARNING_METHOD, learning_method),
-            "growth1": (EntityTypes.CONCEPT, growth)
-        }
-        
-        relations = [
-            (RelationTypes.WORKS_FOR, "p1", "ind1"),
-            (RelationTypes.HAS_EXPERTISE, "p1", "tech1"),
-            (RelationTypes.ORGANIZES, "p1", "prod1"),
-            (RelationTypes.USES, "p1", "method1"),
-            (RelationTypes.RESULTS_IN, "method1", "growth1")
-        ]
-        
-        return text, entities, relations
-
-class ThirdPersonLifeStageWisdomTemplate(Template):
-    def generate(self):
-        person = random.choice(PEOPLE_NAMES)
-        life_stage = random.choice(["retirement", "mid-career", "early adulthood", "senior years"])
-        period = random.choice(["recently", "over the years", "during this phase", "in this chapter"])
-        memory_type = random.choice(["life lessons", "accumulated wisdom", "meaningful experiences", "personal insights"])
-        community_role = random.choice(["mentor", "advisor", "guide", "elder"])
-        personal_growth = random.choice(["deep wisdom", "life perspective", "emotional maturity", "spiritual growth"])
-        
-        text = f"{person} is in their {life_stage} and {period} has been reflecting on {memory_type}. As a {community_role}, they share their {personal_growth}."
-        
-        entities = {
-            "p1": (EntityTypes.PERSON, person),
-            "stage1": (EntityTypes.LIFE_STAGE, life_stage),
-            "period1": (EntityTypes.PERIOD, period),
-            "memory1": (EntityTypes.MEMORY_TYPE, memory_type),
-            "role1": (EntityTypes.COMMUNITY_ROLE, community_role),
-            "growth1": (EntityTypes.PERSONAL_GROWTH, personal_growth)
-        }
-        
-        relations = [
-            (RelationTypes.EXPERIENCES, "p1", "stage1"),
-            (RelationTypes.ON_DATE, "memory1", "period1"),
-            (RelationTypes.REMEMBERS, "p1", "memory1"),
-            (RelationTypes.HAS_ROLE, "p1", "role1"),
-            (RelationTypes.HAS_ATTRIBUTE, "p1", "growth1")
-        ]
-        
-        return text, entities, relations
 
 class ThirdPersonCulturalPreservationTemplate(Template):
     def generate(self):
