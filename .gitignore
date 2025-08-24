@@ -1,0 +1,18 @@
+# Dataset files - too large for Git
+*.json
+DeBERTa_finetuning_dataset_expanded_relations.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
